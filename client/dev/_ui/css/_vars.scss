@@ -1,0 +1,91 @@
+
+
+/*** Mixins ***/
+
+@mixin border-box () { 
+	-moz-box-sizing: border-box; 
+	-webkit-box-sizing: border-box; 
+	box-sizing: border-box; 
+}
+
+@mixin flexbox-model-parent ($align: center, $orient: horizontal, $pack: start) {
+	display: -moz-box;
+	-moz-box-align: $align;
+	-moz-box-orient: $orient;
+	-moz-box-pack: $pack;
+	display: -webkit-box;
+	-webkit-box-align: $align;
+	-webkit-box-orient: $orient;
+	-webkit-box-pack: $pack;
+	display: box;
+	box-align: $align;
+	box-orient: $orient;
+	box-pack: $pack;
+}
+@mixin flexbox-model-child ($flex: 1){
+	-moz-box-flex: $flex;
+	-webkit-box-flex: $flex;
+	box-flex: $flex;
+}
+@mixin rounded-corners ($tl: 4px, $tr: 4px, $bl: 4px, $br: 4px) {
+	border-radius: $tl $tr $bl $br;
+	-webkit-border-radius: $tl $tr $bl $br;
+	-moz-border-radius: $tl $tr $bl $br;
+}
+
+@mixin box-shadow ($args) {
+	-webkit-box-shadow: $args;
+	-moz-box-shadow: $args;
+	box-shadow: $args;
+}
+
+@mixin transition ($property: background, $duration: 1s, $tween: ease) {
+	-webkit-transition: $property $duration $tween;
+	-moz-transition: $property $duration $tween;
+	-ms-transition: $property $duration $tween;
+	-o-transition: $property $duration $tween;
+	transition: $property $duration $tween;
+}
+
+@mixin transform ($args){
+	-webkit-transform: $args;
+	-moz-transform: $args;
+	transform: $args;
+}
+
+@mixin animation ($name: myAnimation, $duration: 1s, $timing: linear, $iteration: infinite){
+	-webkit-animation-name: $name;
+	-moz-animation-name: $name;
+	-o-animation-name: $name;
+	animation-name: $name;
+	-webkit-animation-duration: $duration;
+	-moz-animation-duration: $duration;
+	-o-animation-duration: $duration;
+	animation-duration: $duration;
+	-webkit-animation-iteration-count: $iteration;
+	-moz-animation-iteration-count: $iteration;
+	-o-animation-iteration-count: $iteration;
+	animation-iteration-count: $iteration;
+	-webkit-animation-timing-function: $timing;
+	-moz-animation-timing-function: $timing;
+	-o-animation-timing-function: $timing;
+	animation-timing-function: $timing;
+}
+
+@mixin linear-gradient-vertical ($startColor: #ffffff, $stop1: 0%, $endColor: #000000, $stop2: 100%){
+	background: -moz-linear-gradient(top, $startColor $stop1, $endColor $stop2); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop($stop1,$startColor), color-stop($stop2,$endColor)); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(top, $startColor $stop1,$endColor $stop2); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(top, $startColor $stop1,$endColor $stop2); /* Opera 11.10+ */
+	background: -ms-linear-gradient(top, $startColor $stop1,$endColor $stop2); /* IE10+ */
+	background: linear-gradient(top, $startColor $stop1,$endColor $stop2); /* W3C */
+}
+
+@mixin linear-gradient-vertical-image ($bgImg: url('/_ui/img/icons.png') no-repeat 0 0, $startColor: #ffffff, $stop1: 0%, $endColor: #000000, $stop2: 100%){
+	background: $bgImg, -moz-linear-gradient(top, $startColor $stop1, $endColor $stop2); /* FF3.6+ */
+	background: $bgImg, -webkit-gradient(linear, left top, left bottom, color-stop($stop1,$startColor), color-stop($stop2,$endColor)); /* Chrome,Safari4+ */
+	background: $bgImg, -webkit-linear-gradient(top, $startColor $stop1,$endColor $stop2); /* Chrome10+,Safari5.1+ */
+	background: $bgImg, -o-linear-gradient(top, $startColor $stop1,$endColor $stop2); /* Opera 11.10+ */
+	background: $bgImg, -ms-linear-gradient(top, $startColor $stop1,$endColor $stop2); /* IE10+ */
+	background: $bgImg, linear-gradient(top, $startColor $stop1,$endColor $stop2); /* W3C */
+}
