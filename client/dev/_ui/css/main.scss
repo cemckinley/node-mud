@@ -92,14 +92,28 @@ p, ul, ol{
 	width: 35%;
 }
 
+#transcript{
+	background: #222;
+	height: 400px;
+	width: 100%;
+	padding: 10px 15px;
+	box-sizing: border-box;
+	color: #eee;
+	font-family: Monaco, Courier, monospace;
+	overflow: auto;
+	font-size: 14px;
+	margin: 0 0 10px 0;
+}
 
-/************************************************************************/
-/* WIDGETS																*/
-/************************************************************************/
+#userInput{
+	display: block;
+	width: 100%;
+	height: 25px;
+	font-size: 12px;
+	font-family: Monaco, Courier, monospace;
+	box-sizing: border-box;
+	padding: 0 5px;
+}
 
 
 
-
-/************************************************************************/
-/* PAGE SPECIFIC														*/
-/************************************************************************/

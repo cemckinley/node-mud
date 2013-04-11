@@ -1,25 +1,13 @@
 /*global module:false*/
 
-/*** GRUNT PLUGINS: DEPENDENCIES: ***/
-/*
-    - grunt-contrib-compass (https://github.com/gruntjs/grunt-contrib-compass)
-    - grunt-contrib-concat
-    - grunt-contrib-uglify
-    - grunt-contrib-jshint
-    - grunt-contrib-qunit
-    - grunt-contrib-connect
-    - grunt-contrib-livereload
-    - grunt-regarde
-    - grunt-contrib-copy
-*/
+
+module.exports = function(grunt) {
 
 var path = require('path');
 var lrSnippet = require('grunt-contrib-livereload/lib/utils').livereloadSnippet;
 var folderMount = function folderMount(connect, point) {
   return connect.static(path.resolve(point));
 };
-
-module.exports = function(grunt) {
 
 // Project configuration.
 grunt.initConfig({
@@ -40,6 +28,12 @@ grunt.initConfig({
             ],
             tasks: ['copy:devjs', 'livereload']
         },
+        serverjs: {
+            files: [
+                'server/**/*.js'
+            ],
+            tasks: ['runscripts']
+        },
         other: {
             files: [
                 'client/dev/**/*.html',
@@ -49,15 +43,13 @@ grunt.initConfig({
         }
     },
     connect: {
-        options: {
-            port: 8000,
-            base: 'client/temp/'
-        },
-        livereload: {
+        dev: {
             options: {
                 port: 8001,
+                hostname: null, // setting hostname to null allows requests at port 8001 locally for any host name (i.e. localhost, network IP or machine name)
+                base: 'client/temp',
                 middleware: function(connect, options) {
-                    return [lrSnippet, folderMount(connect, 'client/temp/')];
+                    return [lrSnippet, folderMount(connect, 'client/temp')];
                 }
             }
         }
@@ -100,8 +92,15 @@ grunt.initConfig({
             }
         }
     },
+    runscripts: {
+        websocket: ['server/app.js']
+    },
 
     // build config
+    clean: {
+        dev: ["temp"],
+        dist: ["dist"]
+    },
     copy: {
         devcss: {
             files: [
@@ -186,13 +185,14 @@ grunt.loadNpmTasks('grunt-contrib-qunit');
 grunt.loadNpmTasks('grunt-contrib-uglify');
 grunt.loadNpmTasks('grunt-regarde');
 grunt.loadNpmTasks('grunt-contrib-compass');
+grunt.loadNpmTasks('grunt-contrib-clean');
 
 // custom/ported tasks
 grunt.loadTasks('tasks/');
 
 // Default task.
-grunt.registerTask('run', ['jshint', 'qunit', 'copy:devall', 'compass:dev', 'livereload-start', 'connect', 'regarde']);
-grunt.registerTask('build', ['jshint', 'qunit', 'copy:dist', 'compass:dist', 'concat', 'uglify', 'replacelinks']);
+grunt.registerTask('run', ['jshint', 'qunit', 'clean:dev', 'copy:devall', 'compass:dev', 'runscripts', 'livereload-start', 'connect:dev', 'regarde']);
+grunt.registerTask('build', ['jshint', 'qunit', 'clean:dist', 'copy:dist', 'compass:dist', 'concat', 'uglify', 'replacelinks']);
 grunt.registerTask('test', ['jshint', 'qunit']);
 
 };

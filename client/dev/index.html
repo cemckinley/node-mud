@@ -17,6 +17,7 @@
   <link rel="stylesheet" href="_ui/css/main.css">
 
   <script src="_ui/js/lib/modernizr-core-2.6.2.min.js"></script>
+  <script src="http://macn-caram.popmultimedia.com:8002/socket.io/socket.io.js"></script>
 
 </head>
 
@@ -25,16 +26,14 @@
 
   <div id="container">
     <header id="header">
-      <h1>Grunt Build Scaffold</h1>
+      <h1>Socket.io Demo</h1>
     </header>
 
     <div role="main">
-      <p>This build scaffold provides some generic static site files, and provides grunt tasks for deploying the site to a testing server, and also packaging for production.</p>
-      <h3>Grunt tasks (commands):</h3>
-      <ul>
-        <li><strong>grunt run</strong>: lints js, processes sass, runs any qunit tests, and copies everything to a 'temp' directory. Runs a server at localhost:8000, whose root is the temp directory.
-        </li>
-        <li><strong>grunt build</strong>: lints js, processes sass, runs any qunit tests, combines and minifies js files, copies all files to a 'dist' folder, updates script link blocks to point to concat/minified file. 
+      <p>Trying out websockets with socket.io!</p>
+      <div id="transcript">
+      </div>
+      <input id="userInput" type="text" />
     </div>
 
     <footer id="footer">
@@ -43,7 +42,7 @@
 
   <!-- build:js _ui/js/scripts.min.js -->
   <script src="_ui/js/lib/jquery-1.8.3.min.js"></script>
-  <script src="_ui/js/widget.js"></script>
+  <script src="_ui/js/lib/handlebars.js"></script>
   <script src="_ui/js/main.js"></script>
   <!-- endbuild -->
 
