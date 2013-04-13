@@ -1,5 +1,6 @@
 /*global console: true */
 /*global Modernizr: true */
+/*global Handlebars: true */
 /*global $: true */
 /*global io: true */
 
@@ -27,6 +28,7 @@ WSDEMO.main = {
 		this.config = {
 			socketUrl: 'http://localhost:8002'
 		};
+		this.templates = WSDEMO.templates;
 
 		// controllers/instances
 		this.socket = io.connect(this.config.socketUrl);
@@ -38,19 +40,21 @@ WSDEMO.main = {
 		this.userInputEl.on('keydown', $.proxy(this.onInputKeydown, this));
 
 		// setup
-
 	},
 
 	/**
 	 * runs when message received from server via websockets
-	 * @param  {Object} data [json data from server]
 	 */
-	onServerConnect: function(data){
-		this.updateTranscript('Connected to websocket.');
+	onServerConnect: function(){
 	},
 
 	onServerMessage: function(message){
-		this.updateTranscript(message);
+		var ctx = {
+			type: 'serverMessage',
+			message: message
+		};
+
+		this.updateTranscript(ctx);
 	},
 
 	/** 
@@ -61,25 +65,27 @@ WSDEMO.main = {
 		var userVal = this.userInputEl.val();
 
 		if(userVal !== '' && e.keyCode === 13){ // if enter key			
-			this.submitUserCommand(userVal);
+			this.sendMessage(userVal);
 			this.userInputEl.val('');
 		}
 	},
 
-	submitUserCommand: function(commandStr){
+	sendMessage: function(commandStr){
 		var data = {
-			command: commandStr
+			input: commandStr
 		};
 
-		this.socket.emit('userCommand', data);
+		this.socket.emit('message', data);
 	},
 
 	/**
 	 * update display of transcript
-	 * @param  {String} output [string to add to transcript]
+	 * @param  {Object} context with data for the transcript 'log' template
 	 */
-	updateTranscript: function(output){
-		this.transcriptEl.append(output);
+	updateTranscript: function(data){
+		var html = this.templates.log(data);
+
+		this.transcriptEl.append(html);
 	}
 
 };

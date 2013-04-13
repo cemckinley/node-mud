@@ -28,6 +28,12 @@ grunt.initConfig({
             ],
             tasks: ['copy:devjs', 'livereload']
         },
+        hbs: {
+            files: [
+                'client/dev/_ui/hbs/**/*.hbs'
+            ],
+            tasks: ['handlebars:dev', 'livereload']
+        },
         serverjs: {
             files: [
                 'server/**/*.js'
@@ -92,14 +98,36 @@ grunt.initConfig({
             }
         }
     },
+    handlebars: {
+        dev: {
+            options: {
+                namespace: "WSDEMO.templates",
+                processName: function(filename) {
+                    var name = filename.split('/hbs/')[1].split('.hbs')[0]; // remove from hbs dir up, and remove .hbs extension
+                    return name;
+                }
+            },
+            files: {
+                "client/temp/_ui/js/templates.js": "client/dev/_ui/hbs/**/*.hbs"
+            }
+        },
+        dist: {
+            options: {
+                namespace: "WSDEMO.templates"
+            },
+            files: {
+                "client/dist/_ui/js/templates.js": "client/dev/_ui/hbs/**/*.hbs"
+            }
+        }
+    },
     runscripts: {
         websocket: ['server/app.js']
     },
 
     // build config
     clean: {
-        dev: ["temp"],
-        dist: ["dist"]
+        dev: ["client/temp"],
+        dist: ["client/dist"]
     },
     copy: {
         devcss: {
@@ -132,7 +160,8 @@ grunt.initConfig({
                     expand: true,
                     src: [
                         '**',
-                        '!**/*.scss' // copy over everything except scss, which will be processed/copied with compass
+                        '!**/*.scss', // copy over everything except scss, which will be processed/copied with compass
+                        '!**/hbs/**' // don't copy over handlebar directory, since they are precompiled into _ui/js/templates.js
                     ],
                     dest: 'client/temp/',
                     cwd: 'client/dev/'
@@ -145,8 +174,9 @@ grunt.initConfig({
                     expand: true,
                     src: [
                         'client/**',
-                        '!_ui/css/**', // copy over everything except css and js, which will be processed/copied with compass and concat/min functions
-                        '!_ui/js/**'
+                        '!_ui/css/**', // copy over everything except css, js, & handlebars dir which will be processed/copied with other tasks
+                        '!_ui/js/**',
+                        '!_ui/hbs/**'
                     ],
                     dest: 'client/dist/',
                     cwd: 'client/dev/'
@@ -186,13 +216,14 @@ grunt.loadNpmTasks('grunt-contrib-uglify');
 grunt.loadNpmTasks('grunt-regarde');
 grunt.loadNpmTasks('grunt-contrib-compass');
 grunt.loadNpmTasks('grunt-contrib-clean');
+grunt.loadNpmTasks('grunt-contrib-handlebars');
 
 // custom/ported tasks
 grunt.loadTasks('tasks/');
 
 // Default task.
-grunt.registerTask('run', ['jshint', 'qunit', 'clean:dev', 'copy:devall', 'compass:dev', 'runscripts', 'livereload-start', 'connect:dev', 'regarde']);
-grunt.registerTask('build', ['jshint', 'qunit', 'clean:dist', 'copy:dist', 'compass:dist', 'concat', 'uglify', 'replacelinks']);
+grunt.registerTask('run', ['jshint', 'qunit', 'clean:dev', 'copy:devall', 'compass:dev', 'handlebars:dev', 'runscripts', 'livereload-start', 'connect:dev', 'regarde']);
+grunt.registerTask('build', ['jshint', 'qunit', 'clean:dist', 'copy:dist', 'compass:dist', 'handlebars:dist','concat', 'uglify', 'replacelinks']);
 grunt.registerTask('test', ['jshint', 'qunit']);
 
 };
