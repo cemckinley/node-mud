@@ -15,16 +15,12 @@
 
 var wsDemoApp = (function(){
 
-	var app = require('http').createServer(serverHandler),
-		io = require('socket.io').listen(app),
+	var io = require('socket.io').listen(8002),
 		fs = require('fs'),
 		User = require('./user'),
 		clients = [];
 
 	function init(){
-
-		// setup
-		app.listen(8002);
 
 		// event listeners
 		io.sockets.on('connection', onClientConnect);

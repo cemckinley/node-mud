@@ -1,7 +1,7 @@
 {
-  "name": "my-grunt-project",
+  "name": "Agency MUD",
   "version": "1.0.0",
-  "description": "Project based on grunt.js",
+  "description": "Multi-User Dungeon / Text Adventure using webSockets and node, in an Agency setting",
   "main": "GruntFile.js",
   "dependencies": {
     "grunt": "~0.4.0"
