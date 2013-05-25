@@ -19,7 +19,7 @@ module.exports = (function(){
 		extend = require('extend');
 
 
-	var User = function(socket){
+	var SessionHandler = function(socket){
 
 		this.socket = socket;
 
@@ -27,9 +27,11 @@ module.exports = (function(){
 		this.init();
 	};
 
-	util.inherits(User, events.EventEmitter);
+	util.inherits(SessionHandler, events.EventEmitter);
 
-	User.prototype = extend({
+	SessionHandler.prototype = extend({
+
+		userData: {},
 
 		init: function(){
 
@@ -40,64 +42,66 @@ module.exports = (function(){
 			this.socket.emit('message', 'What is your name, employee?');
 
 			// event listeners
-			this.socket.once('message', this.handleUserName.bind(this));
+			this.socket.once('message', this._handleUserName.bind(this));
 		},
 
-		handleUserName: function(data){
+		_handleUserName: function(data){
 			var self = this,
 				name = data.input,
-				isRegistered = this.checkIsUserRegistered(name);
+				isRegistered = this._checkIsUserRegistered(name);
 
 			this.name = name;
 
 			if(isRegistered){
 				this.socket.emit('message', 'Welcome back, ' +  name + '. What is your password?');
-				this.socket.once('message', this.handlePassword.bind(this));
+				this.socket.once('message', this._handlePassword.bind(this));
 
 			}else{
 				this.socket.emit('message', 'I see it\'s your first day at The Agency, ' + name + '. What would you like your password to be?');
 				this.socket.once('message', function(data){
-					self.registerUser(name, data.input);
+					self._registerUser(name, data.input);
 				});
 			}
 		},
 
-		handlePassword: function(data){
+		_handlePassword: function(data){
 			var password = data.input,
-				isCorrect = this.checkUserPassword(password);
+				isCorrect = this._checkUserPassword(password);
 
 			if(password === 'email password'){
-				this.emailPassword(this.name);
+				// this.emailPassword(this.name);
 
 				return;
 			}
 
 			if(isCorrect){
-				this.emit('authenticated');
+				this._authenticateUser();
 			}else{
 				this.socket.emit('message', 'Sorry, that is not the correct password. If you have forgotten your password you can type \'email password\'. Please enter your password again:');
-				this.socket.once('message', this.handlePassword.bind(this));
+				this.socket.once('message', this._handlePassword.bind(this));
 			}
 		},
 
-		checkIsUserRegistered: function(name){
+		_checkIsUserRegistered: function(name){
+			this.userData.userName = name;
 			return true;
 		},
 
-		checkUserPassword: function(password){
+		_checkUserPassword: function(password){
 			return true;
 		},
 
-		registerUser: function(name, password){
-			this.emit('authenticated');
+		_registerUser: function(name, password){
+			this.userData.userName = name;
+			this._authenticateUser();
 		},
 
-		onClientMessage: function(data){
-			this.socket.emit('message', 'Why hello! you want to: ' + data.input);
+		_authenticateUser: function(){
+			this.emit('authenticated', this.userData, this.socket);
 		}
 
-	}, User.prototype);
+	}, SessionHandler.prototype);
 
-	return User;
+	return SessionHandler;
 
 }());

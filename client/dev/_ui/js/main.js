@@ -26,12 +26,12 @@ WSDEMO.main = {
 
 		// shared props
 		this.config = {
-			socketUrl: 'http://localhost:8002'
+			socketUrl: 'https://localhost:8002'
 		};
 		this.templates = WSDEMO.templates;
 
 		// controllers/instances
-		this.socket = io.connect(this.config.socketUrl);
+		this.socket = io.connect(this.config.socketUrl, {secure: true});
 
 		// event listeners
 		this.socket.on('connect', $.proxy(this.onServerConnect, this));
@@ -43,7 +43,7 @@ WSDEMO.main = {
 	},
 
 	/**
-	 * runs when message received from server via websockets
+	 * runs when successfully connected to websocket server
 	 */
 	onServerConnect: function(){
 	},
