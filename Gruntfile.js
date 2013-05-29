@@ -3,6 +3,13 @@
 
 module.exports = function(grunt) {
 
+
+var DEV_PATH = 'client/dev';
+var DIST_PATH = 'client/dist';
+var TEMP_PATH = 'client/temp';
+var TEST_PATH = 'client/test';
+var SERVER_APP_PATH = 'server';
+
 var path = require('path');
 var lrSnippet = require('grunt-contrib-livereload/lib/utils').livereloadSnippet;
 var folderMount = function folderMount(connect, point) {
@@ -12,25 +19,25 @@ var folderMount = function folderMount(connect, point) {
 // Project configuration.
 grunt.initConfig({
     qunit: {
-        files: ['client/test/**/*.html']
+        files: [TEST_PATH + '/**/*.html']
     },
     regarde: {
         css: {
             files: [
-                'client/dev/_ui/css/**/*.scss',
-                'client/dev/_ui/css/**/*.css'
+                DEV_PATH + '/_ui/css/**/*.scss',
+                DEV_PATH + '/_ui/css/**/*.css'
             ],
             tasks: ['compass:dev', 'copy:devcss', 'livereload']
         },
         js: {
             files: [
-                'client/dev/_ui/js/**/*.js'
+                DEV_PATH + '/_ui/js/**/*.js'
             ],
             tasks: ['copy:devjs', 'livereload']
         },
         hbs: {
             files: [
-                'client/dev/_ui/hbs/**/*.hbs'
+                DEV_PATH + '/_ui/hbs/**/*.hbs'
             ],
             tasks: ['handlebars:dev', 'livereload']
         },
@@ -42,8 +49,8 @@ grunt.initConfig({
         },
         other: {
             files: [
-                'client/dev/**/*.html',
-                'client/dev/_ui/img/**/*'
+                DEV_PATH + '/**/*.html',
+                DEV_PATH + '/_ui/img/**/*'
             ],
             tasks: ['copy:devall', 'livereload']
         }
@@ -53,9 +60,9 @@ grunt.initConfig({
             options: {
                 port: 8001,
                 hostname: null, // setting hostname to null allows requests at port 8001 locally for any host name (i.e. localhost, network IP or machine name)
-                base: 'client/temp',
+                base: TEMP_PATH,
                 middleware: function(connect, options) {
-                    return [lrSnippet, folderMount(connect, 'client/temp')];
+                    return [lrSnippet, folderMount(connect, TEMP_PATH)];
                 }
             }
         }
@@ -75,25 +82,25 @@ grunt.initConfig({
             browser: true
         },
         files: grunt.file.expand([
-            'client/dev/_ui/js/**/*.js',
-            'client/test/**/*.js',
-            '!client/test/qunit.js',
-            '!client/dev/_ui/js/lib/**/*' // leave out 3rd party js in lib folder, since can't guarantee lint quality
+            DEV_PATH + '/_ui/js/**/*.js',
+            TEST_PATH + '/**/*.js',
+            '!' + TEST_PATH + '/qunit.js',
+            '!' + DEV_PATH + '/_ui/js/lib/**/*' // leave out 3rd party js in lib folder, since can't guarantee lint quality
         ]),
         globals: {}
     },
     compass: {
         dev: {
             options: {
-                cssDir: 'client/temp/_ui/css',
-                sassDir: 'client/dev/_ui/css',
+                cssDir: TEMP_PATH + '/_ui/css',
+                sassDir: DEV_PATH + '/_ui/css',
                 environment: 'development'
             }
         },
         dist: {
             options: {
-                cssDir: 'client/dist/_ui/css',
-                sassDir: 'client/dev/_ui/css',
+                cssDir: DIST_PATH + '/_ui/css',
+                sassDir: DEV_PATH + '/_ui/css',
                 environment: 'production'
             }
         }
@@ -101,33 +108,48 @@ grunt.initConfig({
     handlebars: {
         dev: {
             options: {
-                namespace: "NODEMUD.templates",
+                namespace: 'NODEMUD.templates',
                 processName: function(filename) {
                     var name = filename.split('/hbs/')[1].split('.hbs')[0]; // remove from hbs dir up, and remove .hbs extension
                     return name;
                 }
             },
-            files: {
-                "client/temp/_ui/js/templates.js": "client/dev/_ui/hbs/**/*.hbs"
-            }
+            files: [
+                {
+                    dest: TEMP_PATH + '/_ui/js/templates.js',
+                    src: DEV_PATH + '/_ui/hbs/**/*.hbs'
+                }
+            ]
         },
         dist: {
             options: {
-                namespace: "NODEMUD.templates"
+                namespace: 'NODEMUD.templates'
             },
-            files: {
-                "client/dist/_ui/js/templates.js": "client/dev/_ui/hbs/**/*.hbs"
-            }
+            files: [
+                {
+                    dest: DIST_PATH + '/_ui/js/templates.js',
+                    src: DEV_PATH + '/_ui/hbs/**/*.hbs'
+                }
+            ]
         }
     },
     runscripts: {
-        websocket: ['server/app.js']
+        websocket: [SERVER_APP_PATH + '/app.js'] // start server app node process
     },
+    shell: {
+        startMongo: {
+            command: 'mongod', // start mongodb
+            options: {
+                async: true
+            }
+        }
+    },
+
 
     // build config
     clean: {
-        dev: ["client/temp"],
-        dist: ["client/dist"]
+        dev: [TEMP_PATH],
+        dist: [DIST_PATH]
     },
     copy: {
         devcss: {
@@ -137,8 +159,8 @@ grunt.initConfig({
                     src: [
                         '_ui/css/**/*.css'
                     ],
-                    dest: 'client/temp/',
-                    cwd: 'client/dev/'
+                    dest: TEMP_PATH + '/',
+                    cwd: DEV_PATH + '/'
                 }
             ]
         },
@@ -149,8 +171,8 @@ grunt.initConfig({
                     src: [
                         '_ui/js/**/*.js'
                     ],
-                    dest: 'client/temp/',
-                    cwd: 'client/dev/'
+                    dest: TEMP_PATH + '/',
+                    cwd: DEV_PATH + '/'
                 }
             ]
         },
@@ -163,8 +185,8 @@ grunt.initConfig({
                         '!**/*.scss', // copy over everything except scss, which will be processed/copied with compass
                         '!**/hbs/**' // don't copy over handlebar directory, since they are precompiled into _ui/js/templates.js
                     ],
-                    dest: 'client/temp/',
-                    cwd: 'client/dev/'
+                    dest: TEMP_PATH + '/',
+                    cwd: DEV_PATH + '/'
                 }
             ]
         },
@@ -178,8 +200,8 @@ grunt.initConfig({
                         '!_ui/js/**',
                         '!_ui/hbs/**'
                     ],
-                    dest: 'client/dist/',
-                    cwd: 'client/dev/'
+                    dest: DIST_PATH + '/',
+                    cwd: DEV_PATH + '/'
 
                 }
             ]
@@ -187,20 +209,20 @@ grunt.initConfig({
     },
     concat: {
         dist: {
-            src: ['client/dev/_ui/js/**/*.js'],
-            dest: 'client/dist/_ui/js/scripts.js'
+            src: [DEV_PATH + '/_ui/js/**/*.js'],
+            dest: DIST_PATH + '/_ui/js/scripts.js'
         }
     },
     uglify: {
         dist: {
-            dest: 'client/dist/_ui/js/scripts.min.js',
-            src: ['client/dist/_ui/js/scripts.js']
+            dest: DIST_PATH + '/_ui/js/scripts.min.js',
+            src: [DIST_PATH + '/_ui/js/scripts.js']
         }
     },
     // replace js and css link build blocks within specified files with their concatenated versions
     replacelinks: {
         files: [
-            'client/dist/*.html'
+            DIST_PATH + '/*.html'
         ]
     }
 });
@@ -217,12 +239,13 @@ grunt.loadNpmTasks('grunt-regarde');
 grunt.loadNpmTasks('grunt-contrib-compass');
 grunt.loadNpmTasks('grunt-contrib-clean');
 grunt.loadNpmTasks('grunt-contrib-handlebars');
+grunt.loadNpmTasks('grunt-shell-spawn');
 
 // custom/ported tasks
 grunt.loadTasks('tasks/');
 
 // Default task.
-grunt.registerTask('run', ['jshint', 'qunit', 'clean:dev', 'copy:devall', 'compass:dev', 'handlebars:dev', 'runscripts', 'livereload-start', 'connect:dev', 'regarde']);
+grunt.registerTask('run', ['jshint', 'qunit', 'clean:dev', 'copy:devall', 'compass:dev', 'handlebars:dev', 'shell', 'runscripts', 'livereload-start', 'connect:dev', 'regarde']);
 grunt.registerTask('build', ['jshint', 'qunit', 'clean:dist', 'copy:dist', 'compass:dist', 'handlebars:dist','concat', 'uglify', 'replacelinks']);
 grunt.registerTask('test', ['jshint', 'qunit']);
 
