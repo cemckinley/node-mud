@@ -1,10 +1,15 @@
 {
-  "name": "Agency MUD",
+  "name": "mud-engine",
   "version": "1.0.0",
-  "description": "Multi-User Dungeon / Text Adventure using webSockets and node, in an Agency setting",
+  "description": "Multi-User Dungeon engine built on node.js and mongoDB",
   "main": "GruntFile.js",
   "dependencies": {
-    "grunt": "~0.4.0"
+    "grunt": "~0.4.0",
+    "socket.io": "~0.9.14",
+    "exec-sync": "~0.1.5",
+    "extend": "~1.1.3",
+    "bcrypt": "~0.7.5",
+    "mongodb": "~1.3.6"
   },
   "devDependencies": {
     "grunt-contrib-concat": "~0.1.3",
@@ -16,10 +21,7 @@
     "grunt-contrib-compass": "~0.1.3",
     "grunt-regarde": "~0.1.1",
     "grunt-contrib-copy": "~0.4.0",
-    "socket.io": "~0.9.13",
-    "exec-sync": "~0.1.5",
-    "grunt-contrib-handlebars": "~0.5.8",
-    "extend": "~1.1.3"
+    "grunt-contrib-handlebars": "~0.5.8"
   },
   "repository": {},
   "author": "",
