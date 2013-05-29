@@ -101,7 +101,7 @@ grunt.initConfig({
     handlebars: {
         dev: {
             options: {
-                namespace: "WSDEMO.templates",
+                namespace: "NODEMUD.templates",
                 processName: function(filename) {
                     var name = filename.split('/hbs/')[1].split('.hbs')[0]; // remove from hbs dir up, and remove .hbs extension
                     return name;
@@ -113,7 +113,7 @@ grunt.initConfig({
         },
         dist: {
             options: {
-                namespace: "WSDEMO.templates"
+                namespace: "NODEMUD.templates"
             },
             files: {
                 "client/dist/_ui/js/templates.js": "client/dev/_ui/hbs/**/*.hbs"

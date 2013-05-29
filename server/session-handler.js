@@ -19,9 +19,10 @@ module.exports = (function(){
 		extend = require('extend');
 
 
-	var SessionHandler = function(socket){
+	var SessionHandler = function(socket, db){
 
 		this.socket = socket;
+		this.db = db;
 
 		events.EventEmitter.call(this);
 		this.init();
@@ -83,7 +84,14 @@ module.exports = (function(){
 		},
 
 		_checkIsUserRegistered: function(name){
-			this.userData.userName = name;
+			var self = this,
+				users = this.db.collection('users');
+
+			users.findOne({username:name}, function(err, item) {
+				if (err){ self.socket.emit('message', 'database error'); }
+
+				self.socket.emit('message', JSON.stringify(item));
+			});
 			return true;
 		},
 

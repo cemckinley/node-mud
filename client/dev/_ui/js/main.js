@@ -14,9 +14,9 @@
  *      - jQuery 1.8
  */
 
-var WSDEMO = WSDEMO || {};
+var NODEMUD = NODEMUD || {};
 
-WSDEMO.main = {
+NODEMUD.main = {
 
 	init: function(){
 
@@ -28,7 +28,7 @@ WSDEMO.main = {
 		this.config = {
 			socketUrl: 'https://localhost:8002'
 		};
-		this.templates = WSDEMO.templates;
+		this.templates = NODEMUD.templates;
 
 		// controllers/instances
 		this.socket = io.connect(this.config.socketUrl, {secure: true});
@@ -91,5 +91,5 @@ WSDEMO.main = {
 };
 
 $(function(){
-	WSDEMO.main.init();
+	NODEMUD.main.init();
 });

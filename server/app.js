@@ -8,33 +8,41 @@
  *  @author CM
  *  @requires
  *      - npm -> socket.io
+ *      - npm -> mongodb
  *      - node -> http
  *      - node -> fs
- *      - ./user.js
+ *      - ./config.js
+ *      - ./session-handler.js
  */
 
 var fs = require('fs'),
 	https = require('https'),
 	socketio = require('socket.io'),
+	mongoClient = require('mongodb').MongoClient,
+	config = require('./config'),
 	SessionHandler = require('./session-handler');
 
 
-var wsDemoApp = (function(){
+var nodeMud = (function(){
 
 	/** properties **/
 
 	var httpsOptions = {
-			key: fs.readFileSync(__dirname + '/keys/websocket-ssl.key'),
-			cert: fs.readFileSync(__dirname + '/keys/websocket-ssl.crt'),
-			passphrase: '123456'
+			key: fs.readFileSync(config.ssl.keyPath),
+			cert: fs.readFileSync(config.ssl.certPath),
+			passphrase: config.ssl.passphrase
 		},
-		httpsServer = https.createServer(httpsOptions, _httpsHandler).listen(8002),
-		io = socketio.listen(httpsServer);
+		httpsServer = https.createServer(httpsOptions, _httpsHandler).listen(config.socket.port), // server for socket.io socket
+		io = socketio.listen(httpsServer), // websocket
+		database; // stores db connection
 
 
 	/** functions **/
 
 	function init(){
+
+		// setup
+		mongoClient.connect(config.db.location, _onDatabaseConnect);
 
 		// event listeners
 		io.sockets.on('connection', _onClientConnect);
@@ -46,13 +54,19 @@ var wsDemoApp = (function(){
 	}
 
 	function _onClientConnect(socket){
-		var client = new SessionHandler(socket);
+		var client = new SessionHandler(socket, database);
 
 		client.once('authenticated', _onClientAuth);
 	}
 
 	function _onClientAuth(clientData, clientSocket){
 		clientSocket.emit('message', clientData.userName);
+	}
+
+	function _onDatabaseConnect(err, db){
+		if(err) { return console.dir(err); }
+
+		database = db;
 	}
 
 
@@ -64,4 +78,4 @@ var wsDemoApp = (function(){
 
 }());
 
-wsDemoApp.init();
+nodeMud.init();
