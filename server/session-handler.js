@@ -16,7 +16,8 @@ module.exports = (function(){
 
 	var events = require('events'),
 		util = require('util'),
-		extend = require('extend');
+		extend = require('extend'),
+		bcrypt = require('bcrypt');
 
 
 	var SessionHandler = function(socket, db){
@@ -43,26 +44,7 @@ module.exports = (function(){
 			this.socket.emit('message', 'What is your name, employee?');
 
 			// event listeners
-			this.socket.once('message', this._handleUserName.bind(this));
-		},
-
-		_handleUserName: function(data){
-			var self = this,
-				name = data.input,
-				isRegistered = this._checkIsUserRegistered(name);
-
-			this.name = name;
-
-			if(isRegistered){
-				this.socket.emit('message', 'Welcome back, ' +  name + '. What is your password?');
-				this.socket.once('message', this._handlePassword.bind(this));
-
-			}else{
-				this.socket.emit('message', 'I see it\'s your first day at The Agency, ' + name + '. What would you like your password to be?');
-				this.socket.once('message', function(data){
-					self._registerUser(name, data.input);
-				});
-			}
+			this.socket.once('message', this._checkIsUserRegistered.bind(this));
 		},
 
 		_handlePassword: function(data){
@@ -83,29 +65,44 @@ module.exports = (function(){
 			}
 		},
 
-		_checkIsUserRegistered: function(name){
-			var self = this,
+		_checkIsUserRegistered: function(data){
+			var name = data.input,
+				self = this,
 				users = this.db.collection('users');
 
+			this.userData.name = name; // cache user name
+
 			users.findOne({username:name}, function(err, item) {
-				if (err){ self.socket.emit('message', 'database error'); }
 
-				self.socket.emit('message', JSON.stringify(item));
+				if (!item){
+					self._requestNewUser();
+				}else{
+					self._requestPassword();
+				}
 			});
-			return true;
 		},
 
-		_checkUserPassword: function(password){
-			return true;
+		_requestPassword: function(){
+			this.socket.emit('privateRequest', 'Welcome back, ' +  this.userData.name + '. What is your password?');
+			this.socket.once('message', this._checkPassword.bind(this));
 		},
 
-		_registerUser: function(name, password){
-			this.userData.userName = name;
-			this._authenticateUser();
+		_checkPassword: function(data){
+
 		},
 
-		_authenticateUser: function(){
-			this.emit('authenticated', this.userData, this.socket);
+		_requestNewUser: function(){
+			var self = this;
+
+			this.socket.emit('privateRequest', 'I see it\'s your first day at The Agency, ' + this.userData.name + '. Please enter a password to begin the registration process:');
+			this.socket.once('message', function(data){
+				self.userData.password = data.input;
+				self._startUserRegistration();
+			});
+		},
+
+		_startUserRegistration: function(){
+
 		}
 
 	}, SessionHandler.prototype);

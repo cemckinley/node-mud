@@ -19,7 +19,7 @@ var fs = require('fs'),
 	https = require('https'),
 	socketio = require('socket.io'),
 	mongoClient = require('mongodb').MongoClient,
-	config = require('./config'),
+	config = require('./config/env'),
 	SessionHandler = require('./session-handler');
 
 

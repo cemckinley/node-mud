@@ -1,5 +1,5 @@
-<div class="log{{#type}} {{type}}{{/type}}">
+<div class="log{{#if type}} {{type}}{{/if}}">
 	>>&nbsp;
-	{{#meta}}<span class="meta"><span>{{label}}{{value}}</span></span>{{/meta}}
+	{{#if meta}}<span class="meta"><span>{{label}}{{value}}</span></span>{{/if}}
 	{{message}}
 </div>
