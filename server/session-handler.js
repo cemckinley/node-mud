@@ -17,7 +17,8 @@ module.exports = (function(){
 	var events = require('events'),
 		util = require('util'),
 		extend = require('extend'),
-		bcrypt = require('bcrypt');
+		bcrypt = require('bcrypt'),
+		userSchema = require('./config/user-schema');
 
 
 	var SessionHandler = function(socket, db){
@@ -29,11 +30,14 @@ module.exports = (function(){
 		this.init();
 	};
 
+	// inherit eventEmitter class to emit events for use by app.js
 	util.inherits(SessionHandler, events.EventEmitter);
 
 	SessionHandler.prototype = extend({
 
 		userData: {},
+
+		/** PUBLIC **/
 
 		init: function(){
 
@@ -45,6 +49,35 @@ module.exports = (function(){
 
 			// event listeners
 			this.socket.once('message', this._checkIsUserRegistered.bind(this));
+		},
+
+
+		/** PRIVATE **/
+
+		_checkIsUserRegistered: function(data){
+			var name = data.input,
+				self = this,
+				users = this.db.collection('users');
+
+			this.userData.name = name; // cache user name
+
+			users.findOne({username:name}, function(err, item) {
+				if (!item){
+					self.socket.emit('message', 'I see it\'s your first day at The Agency, ' + self.userData.name + '. Let\'s begin your paperwork.');
+					self._requestNewPassword();
+				}else{
+					self._requestLogin();
+				}
+			});
+		},
+
+		_requestLogin: function(){
+			this.socket.emit('privateRequest', 'Welcome back, ' +  this.userData.name + '. What is your password?');
+			this.socket.once('message', this._checkPassword.bind(this));
+		},
+
+		_checkPassword: function(data){
+
 		},
 
 		_handlePassword: function(data){
@@ -65,47 +98,89 @@ module.exports = (function(){
 			}
 		},
 
-		_checkIsUserRegistered: function(data){
-			var name = data.input,
-				self = this,
-				users = this.db.collection('users');
+		_requestNewPassword: function(){
+			var self = this;
 
-			this.userData.name = name; // cache user name
+			this.socket.emit('privateRequest', 'Please enter a password to use for logging in to our network:');
+			this.socket.once('message', function(data){
+				self.userData.password = data.input;
+				self._verifyNewPassword();
+			});
+		},
 
-			users.findOne({username:name}, function(err, item) {
+		_verifyNewPassword: function(){
+			var self = this;
 
-				if (!item){
-					self._requestNewUser();
+			this.socket.emit('privateRequest', 'Please verify your chosen password:');
+			this.socket.once('message', function(data){
+				if( data.input !== self.userData.password ){
+					self.socket.emit('message', 'Sorry, your passwords do not match.');
+					self._requestNewPassword();
 				}else{
-					self._requestPassword();
+					self._startUserClassSelection();
 				}
 			});
 		},
 
-		_requestPassword: function(){
-			this.socket.emit('privateRequest', 'Welcome back, ' +  this.userData.name + '. What is your password?');
-			this.socket.once('message', this._checkPassword.bind(this));
+		_startUserClassSelection: function(){
+			var self = this,
+				classMsg = 'Our current job openings are for the following roles:<br />';
+
+			for (var className in userSchema.classes){
+				classMsg += ('- ' + className + '<br />');
+			}
+
+			this.socket.emit('message', classMsg);
+			this._requestClassName();
 		},
 
-		_checkPassword: function(data){
-
-		},
-
-		_requestNewUser: function(){
+		_requestClassName: function(){
 			var self = this;
 
-			this.socket.emit('privateRequest', 'I see it\'s your first day at The Agency, ' + this.userData.name + '. Please enter a password to begin the registration process:');
+			this.socket.emit('message', 'Which position are you here for? Type \'info [role]\' to review the role description.');
 			this.socket.once('message', function(data){
-				self.userData.password = data.input;
-				self._startUserRegistration();
+				var userCommand = data.input.split(/ /g);
+
+				if( userSchema.classes.hasOwnProperty(data.input) ){
+					self.userData.className = data.input;
+					self._requestRequiredFields();
+				}else if(userCommand[0] === 'info'){
+					self._displayClassInfo(userCommand[1]);
+				}else{
+					self.socket.emit('message', 'I\'m sorry, we don\'t have openings for that role.');
+					self._requestClassName();
+				}
 			});
 		},
 
-		_startUserRegistration: function(){
+		_displayClassInfo: function(className){
+			var classObj,
+				classInfoMsg = className + ': ';
+
+			if( !userSchema.classes.hasOwnProperty(className) ){
+				this.socket.emit('message', 'I\'m sorry, we don\'t have openings for that role.');
+				this._requestClassName();
+				return;
+			}
+
+			classObj = userSchema.classes[className];
+
+			classInfoMsg += classObj.description;
+
+			this.socket.emit('message', classInfoMsg);
+			this._startUserClassSelection();
+		},
+
+		_requestRequiredFields: function(){
+
+		},
+
+		_registerNewUser: function(){
 
 		}
 
 	}, SessionHandler.prototype);
+
 
 	return SessionHandler;
 

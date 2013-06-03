@@ -53,7 +53,10 @@ p, ul, ol{
 	display:none;
 	visibility: hidden;
 }
-.clear{
+.clearfix:after{
+	content: '';
+	display: block;
+	width: 100%;
 	float: none;
 	clear: both;
 	height: 1px;
@@ -117,6 +120,16 @@ p, ul, ol{
 }
 
 .log{
+
+	.bullet{
+		float: left;
+		width: 10px;
+		margin-right: 10px;
+	}
+	.entry{
+		float: right;
+		width: 850px;
+	}
 
 	&.userCommand{
 		color: #666;
