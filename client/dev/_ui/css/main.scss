@@ -120,19 +120,20 @@ p, ul, ol{
 }
 
 .log{
+	@include flexbox-model-parent ();
 
 	.bullet{
-		float: left;
+		@include flexbox-model-child (0);
 		width: 10px;
-		margin-right: 10px;
+		padding-right: 10px;
 	}
 	.entry{
-		float: right;
-		width: 850px;
+		@include flexbox-model-child (1);
 	}
 
 	&.userCommand{
 		color: #666;
+		margin-bottom: 10px;
 	}
 }
 

@@ -19,6 +19,8 @@ var NODEMUD = NODEMUD || {};
 NODEMUD.main = {
 
 	privateRequest: false, // flag set by 'privateRequest' event by server
+	commandHistoryIndex: 0, // index in user command history
+	commandHistory: [], // cache of submitted user commands
 	config: {
 		socketUrl: 'https://localhost:8002'
 	},
@@ -57,17 +59,76 @@ NODEMUD.main = {
 	},
 
 	/**
-	 * update display of transcript
+	 * update display of transcript, scroll log to new entry
 	 * @param  {Object} context with data for the transcript 'log' template
 	 */
 	updateTranscript: function(data){
-		var html = this.templates.log(data);
+		var html = this.templates.log(data),
+			scrollTop = this.transcriptEl.scrollTop();
+			scrollHeight = this.transcriptEl.prop('scrollHeight'),
+			shouldPinLog = (scrollHeight - this.transcriptEl.innerHeight()) - scrollTop < 20 ? true : false; // is user within 20px of bottom of logs
 
 		this.transcriptEl.append(html);
+		if(shouldPinLog){
+			this.transcriptEl.scrollTop(this.transcriptEl.prop('scrollHeight'));
+		}
 	},
 
 
 	/* PRIVATE */
+
+	/**
+	 * send value from user input to server, clear user input, set any private flags, update command history
+	 */
+	_dispatchUserInput: function(){
+		var userVal = this.userInputEl.val(),
+			ctx = {
+				type: 'userCommand',
+				message: userVal
+			};
+
+		this.sendMessage(userVal);
+		this.userInputEl.val('');
+
+		// if last server message was private request, don't display user's input (i.e. passwords)
+		if( this.privateRequest === true ){
+			this.privateRequest = false;
+			ctx.message = '';
+		}
+
+		this.updateTranscript(ctx);
+		this._updateCommandHistory(userVal);
+	},
+
+	/**
+	 * reset command history index to zero and add command to history if its not the same as the previous command
+	 * @param  {String} command [user command]
+	 */
+	_updateCommandHistory: function(command){
+		this.commandHistoryIndex = 0;
+		if(this.commandHistory[0] !== command){
+			this.commandHistory.unshift(command);
+		}
+		if( this.commandHistory.length > 100 ){ this.commandHistory.pop(); } // limit history to 100 commands
+	},
+
+	/**
+	 * get next or previous command from command history
+	 * @param  {String} direction ['back' or 'forward' - direction to look in history]
+	 */
+	_retrieveCommand: function(direction){
+		if( direction === 'back' ){
+			this.commandHistoryIndex = Math.min(this.commandHistoryIndex + 1, this.commandHistory.length);
+		}else if(direction === 'forward'){
+			this.commandHistoryIndex = Math.max(this.commandHistoryIndex - 1, 0);
+		}
+
+		if(this.commandHistoryIndex > 0){
+			this.userInputEl.val(this.commandHistory[this.commandHistoryIndex - 1]);
+		}else{
+			this.userInputEl.val('');
+		}
+	},
 
 
 	/* EVENT HANDLERS */
@@ -106,23 +167,12 @@ NODEMUD.main = {
 	 * @param {Object} e [dom event]
 	 */
 	_onInputKeydown: function(e){
-		var userVal = this.userInputEl.val(),
-			ctx = {
-				type: 'userCommand',
-				message: userVal
-			};
-
-		if(userVal !== '' && e.keyCode === 13){ // if enter key			
-			this.sendMessage(userVal);
-			this.userInputEl.val('');
-
-			// if last server message was private request, don't display user's input (i.e. passwords)
-			if( this.privateRequest === true ){
-				this.privateRequest = false;
-				ctx.message = '';
-			}
-
-			this.updateTranscript(ctx);
+		if(this.userInputEl.val() !== '' && e.keyCode === 13){ // if enter key			
+			this._dispatchUserInput();
+		}else if(e.keyCode === 38){ // up arrow
+			this._retrieveCommand('back');
+		}else if(e.keyCode === 40){ // down arrow
+			this._retrieveCommand('forward');
 		}
 	}
 
