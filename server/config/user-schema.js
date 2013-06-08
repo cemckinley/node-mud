@@ -29,7 +29,8 @@ module.exports = (function(){
 		 * An object for each class available for the user to choose. Classes are what are used for combat and skills.
 		 * @type {Object}
 		 * @example
-		 *	'Troll' : {
+		 *	'troll' : {
+		 *		displayName: 'Troll',
 		 *		strength: 5, // value 1-10
 		 *		defense: 5, // value 1-10
 		 *		concentration: 5, // value 1-10
@@ -44,7 +45,8 @@ module.exports = (function(){
 		 *	}
 		 */
 		classes: {
-			'Developer': {
+			'developer': {
+				displayName: 'Developer',
 				strength: 5,
 				defense: 7,
 				concentration: 9,
@@ -53,7 +55,8 @@ module.exports = (function(){
 				abilities: ['hack'],
 				description: 'Developers are highly intelligent and defensive, but are somewhat slow and their tendency to spend all day in front of a screen renders them weaker than others.'
 			},
-			'Project Manager': {
+			'projectManager': {
+				displayName: 'Project Manager',
 				strength: 7,
 				defense: 9,
 				concentration: 4,

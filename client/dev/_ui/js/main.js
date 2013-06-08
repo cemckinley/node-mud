@@ -64,7 +64,7 @@ NODEMUD.main = {
 	 */
 	updateTranscript: function(data){
 		var html = this.templates.log(data),
-			scrollTop = this.transcriptEl.scrollTop();
+			scrollTop = this.transcriptEl.scrollTop(),
 			scrollHeight = this.transcriptEl.prop('scrollHeight'),
 			shouldPinLog = (scrollHeight - this.transcriptEl.innerHeight()) - scrollTop < 20 ? true : false; // is user within 20px of bottom of logs
 

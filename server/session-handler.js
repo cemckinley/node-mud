@@ -19,6 +19,7 @@ module.exports = (function(){
 		extend = require('extend'),
 		bcrypt = require('bcrypt'),
 		userSchema = require('./config/user-schema');
+		dict = require('./dict/user-session');
 
 
 	var SessionHandler = function(socket, db){
@@ -44,8 +45,8 @@ module.exports = (function(){
 			// shared properties
 
 			// setup
-			this.socket.emit('message', 'Welcome to The Agency.');
-			this.socket.emit('message', 'What is your name, employee?');
+			this.socket.emit('message', dict.welcome);
+			this.socket.emit('message', dict.requestName);
 
 			// event listeners
 			this.socket.once('message', this._checkIsUserRegistered.bind(this));
@@ -63,7 +64,7 @@ module.exports = (function(){
 
 			users.findOne({username:name}, function(err, item) {
 				if (!item){
-					self.socket.emit('message', 'I see it\'s your first day at The Agency, ' + self.userData.name + '. Let\'s begin your paperwork.');
+					self.socket.emit('message', util.format(dict.newUserGreet, self.userData.name));
 					self._requestNewPassword();
 				}else{
 					self._requestLogin();
@@ -72,7 +73,7 @@ module.exports = (function(){
 		},
 
 		_requestLogin: function(){
-			this.socket.emit('privateRequest', 'Welcome back, ' +  this.userData.name + '. What is your password?');
+			this.socket.emit('privateRequest', util.format(dict.requestPassword, this.userData.name));
 			this.socket.once('message', this._checkPassword.bind(this));
 		},
 
@@ -93,7 +94,7 @@ module.exports = (function(){
 			if(isCorrect){
 				this._authenticateUser();
 			}else{
-				this.socket.emit('message', 'Sorry, that is not the correct password. If you have forgotten your password you can type \'email password\'. Please enter your password again:');
+				this.socket.emit('message', dict.incorrectPassword);
 				this.socket.once('message', this._handlePassword.bind(this));
 			}
 		},
@@ -101,7 +102,7 @@ module.exports = (function(){
 		_requestNewPassword: function(){
 			var self = this;
 
-			this.socket.emit('privateRequest', 'Please enter a password to use for logging in to our network:');
+			this.socket.emit('privateRequest', dict.requestNewPassword);
 			this.socket.once('message', function(data){
 				self.userData.password = data.input;
 				self._verifyNewPassword();
@@ -111,10 +112,10 @@ module.exports = (function(){
 		_verifyNewPassword: function(){
 			var self = this;
 
-			this.socket.emit('privateRequest', 'Please verify your chosen password:');
+			this.socket.emit('privateRequest', dict.verifyPassword);
 			this.socket.once('message', function(data){
 				if( data.input !== self.userData.password ){
-					self.socket.emit('message', 'Sorry, your passwords do not match.');
+					self.socket.emit('message', dict.passwordMismatch);
 					self._requestNewPassword();
 				}else{
 					self._startUserClassSelection();
@@ -124,10 +125,10 @@ module.exports = (function(){
 
 		_startUserClassSelection: function(){
 			var self = this,
-				classMsg = 'Our current job openings are for the following roles:<br />';
+				classMsg = dict.classList + '<br />';
 
 			for (var className in userSchema.classes){
-				classMsg += ('- ' + className + '<br />');
+				classMsg += '- ' + userSchema.classes[className].displayName + '<br />';
 			}
 
 			this.socket.emit('message', classMsg);
@@ -137,17 +138,25 @@ module.exports = (function(){
 		_requestClassName: function(){
 			var self = this;
 
-			this.socket.emit('message', 'Which position are you here for? Type \'info [role]\' to review the role description.');
+			this.socket.emit('message', dict.chooseClass);
 			this.socket.once('message', function(data){
-				var userCommand = data.input.split(/ /g);
+				var command1 = data.input.substr(0, data.input.indexOf(' ')),
+					command2 = data.input.substr(data.input.indexOf(' ') + 1).toLowerCase(),
+					className;
 
-				if( userSchema.classes.hasOwnProperty(data.input) ){
-					self.userData.className = data.input;
+				for( var n in userSchema.classes ){ // get real class object name if exists
+					if( userSchema.classes[n].displayName.toLowerCase() === command2 ){
+						className = n;
+					}
+				}
+
+				if( command1 === 'info' && className){
+					self._displayClassInfo(className);
+				}else if( className && userSchema.classes.hasOwnProperty(className) ){
+					self.userData.className = className;
 					self._requestRequiredFields();
-				}else if(userCommand[0] === 'info'){
-					self._displayClassInfo(userCommand[1]);
 				}else{
-					self.socket.emit('message', 'I\'m sorry, we don\'t have openings for that role.');
+					self.socket.emit('message', dict.invalidClass);
 					self._requestClassName();
 				}
 			});
@@ -155,16 +164,10 @@ module.exports = (function(){
 
 		_displayClassInfo: function(className){
 			var classObj,
-				classInfoMsg = className + ': ';
-
-			if( !userSchema.classes.hasOwnProperty(className) ){
-				this.socket.emit('message', 'I\'m sorry, we don\'t have openings for that role.');
-				this._requestClassName();
-				return;
-			}
+				classInfoMsg = '';
 
 			classObj = userSchema.classes[className];
-
+			classInfoMsg += classObj.displayName + ': ';
 			classInfoMsg += classObj.description;
 
 			this.socket.emit('message', classInfoMsg);
