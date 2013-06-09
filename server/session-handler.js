@@ -55,6 +55,11 @@ module.exports = (function(){
 
 		/** PRIVATE **/
 
+		/**
+		 * Check database for existing user name.
+		 * If not registered, start registration process. If registered, request password.
+		 * @param  {Object} data [input data from socket (looking for username)]
+		 */
 		_checkIsUserRegistered: function(data){
 			var name = data.input,
 				self = this,
@@ -72,6 +77,9 @@ module.exports = (function(){
 			});
 		},
 
+		/**
+		 * Request password from user to login
+		 */
 		_requestLogin: function(){
 			this.socket.emit('privateRequest', util.format(dict.requestPassword, this.userData.name));
 			this.socket.once('message', this._checkPassword.bind(this));
@@ -99,6 +107,10 @@ module.exports = (function(){
 			}
 		},
 
+		/**
+		 * Request new password from user
+		 * On data received, call verify password
+		 */
 		_requestNewPassword: function(){
 			var self = this;
 
@@ -109,6 +121,11 @@ module.exports = (function(){
 			});
 		},
 
+		/**
+		 * request verification of new password.
+		 * On data received, check match. If matches, start user class selection
+		 * @return {[type]} [description]
+		 */
 		_verifyNewPassword: function(){
 			var self = this;
 
@@ -123,6 +140,9 @@ module.exports = (function(){
 			});
 		},
 
+		/**
+		 * List out available classes for user to choose
+		 */
 		_startUserClassSelection: function(){
 			var self = this,
 				classMsg = dict.classList + '<br />';
@@ -135,6 +155,11 @@ module.exports = (function(){
 			this._requestClassName();
 		},
 
+		/**
+		 * Request user choice for class.
+		 * On data received, if class exists, continue registration. If user typed command 'info', show class description.
+		 * If invalid class, request class again.
+		 */
 		_requestClassName: function(){
 			var self = this;
 
@@ -162,6 +187,10 @@ module.exports = (function(){
 			});
 		},
 
+		/**
+		 * Display description for a class
+		 * @param  {String} className [name of class (object name from userSchema.classes)]
+		 */
 		_displayClassInfo: function(className){
 			var classObj,
 				classInfoMsg = '';
@@ -174,12 +203,46 @@ module.exports = (function(){
 			this._startUserClassSelection();
 		},
 
+		/**
+		 * Request any values listed in userSchema.requiredFields, called recursively.
+		 * Once all values have been requested, finish user registration process.
+		 */
 		_requestRequiredFields: function(){
+			var self = this,
+				reqFieldsIndex = 0,
+				reqFieldsCount = userSchema.requiredFields.length;
 
+			// send request to user for current req field
+			function sendRequest(){
+				self.socket.emit('message', userSchema.requiredFields[reqFieldsIndex].message);
+				self.socket.once('message', onDataReceived);
+			}
+
+			// add response to this.userData, request next or finish registration
+			function onDataReceived(data){
+				self.userData[userSchema.requiredFields[reqFieldsIndex].name] = data.input;
+
+				reqFieldsIndex++;
+
+				if(reqFieldsIndex < reqFieldsCount){
+					sendRequest();
+				}else{
+					self._registerNewUser();
+				}
+			}
+
+			sendRequest();
 		},
 
+		/**
+		 * Add any default user attributes, hash the chosen password, and add user to database.
+		 * Trigger user registration event on this, so app controller can add user/socket to user pool.
+		 */
 		_registerNewUser: function(){
 
+			extend(this.userData, userSchema.startingAttributes);
+
+			this.socket.emit('message', JSON.stringify(this.userData));
 		}
 
 	}, SessionHandler.prototype);

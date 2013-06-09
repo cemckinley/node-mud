@@ -26,6 +26,18 @@ module.exports = (function(){
 		],
 
 		/**
+		 * User properties that every user starts with on registration (i.e. health state, starting level)
+		 * @type {Object}
+		 */
+		startingAttributes: {
+			level: 1,
+			hp: 400,
+			mana: 100,
+			hunger: 100,
+			thirst: 100
+		},
+
+		/**
 		 * An object for each class available for the user to choose. Classes are what are used for combat and skills.
 		 * @type {Object}
 		 * @example
