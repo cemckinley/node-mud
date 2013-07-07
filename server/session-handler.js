@@ -37,6 +37,7 @@ module.exports = (function(){
 	SessionHandler.prototype = extend({
 
 		userData: {},
+		password: null, // password stored separately from user data
 
 		/** PUBLIC **/
 
@@ -86,10 +87,6 @@ module.exports = (function(){
 		},
 
 		_checkPassword: function(data){
-
-		},
-
-		_handlePassword: function(data){
 			var password = data.input,
 				isCorrect = this._checkUserPassword(password);
 
@@ -116,9 +113,20 @@ module.exports = (function(){
 
 			this.socket.emit('privateRequest', dict.requestNewPassword);
 			this.socket.once('message', function(data){
-				self.userData.password = data.input;
-				self._verifyNewPassword();
+				if( !self._validatePassword(data.input) ){
+					self._requestNewPassword();
+				}else{
+					self.password = data.input;
+					self._verifyNewPassword();
+				}
 			});
+		},
+
+		_validatePassword: function(password){
+			if( password.length < 8 ){
+				this.socket.emit('message', dict.passwordLengthError);
+				return false;
+			}
 		},
 
 		/**
@@ -131,7 +139,7 @@ module.exports = (function(){
 
 			this.socket.emit('privateRequest', dict.verifyPassword);
 			this.socket.once('message', function(data){
-				if( data.input !== self.userData.password ){
+				if( data.input !== self.password ){
 					self.socket.emit('message', dict.passwordMismatch);
 					self._requestNewPassword();
 				}else{
@@ -239,9 +247,15 @@ module.exports = (function(){
 		 * Trigger user registration event on this, so app controller can add user/socket to user pool.
 		 */
 		_registerNewUser: function(){
+			var self = this,
+				users = this.db.collection('users');
 
-			extend(this.userData, userSchema.startingAttributes);
+			this.userData.hash = bcrypt.hashSync(this.password, 10); // hash password
+			extend(this.userData, userSchema.startingAttributes); // add default/starting character attributes
 
+			users.save(this.userData, function(err, saved){
+				if( err || !saved ) self.socket.emit('message', 'There was an error saving the new user.');
+			});
 			this.socket.emit('message', JSON.stringify(this.userData));
 		}
 

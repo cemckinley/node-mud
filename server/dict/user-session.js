@@ -21,6 +21,7 @@ module.exports = (function(){
 		passwordMismatch: 'Sorry, your passwords do not match.',
 		requestName: 'What is your name, employee?',
 		requestNewPassword: 'Please enter a password to use for logging in to our network:',
+		passwordLengthError: 'Passwords must be at least 8 characters.',
 		requestPassword: 'Welcome back, %s. What is your password?', // %s flag: username
 		verifyPassword: 'Please verify your chosen password:',
 		welcome: 'Welcome to The Agency.'
