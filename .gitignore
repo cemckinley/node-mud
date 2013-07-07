@@ -1,5 +1,11 @@
+# defaults #
 .DS_Store
 .sass-cache
+
+# local compiled #
 client/temp
 client/dist
 node_modules
+
+# private #
+server/config/env.js
