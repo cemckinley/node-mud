@@ -6,10 +6,11 @@
  *  @description user instance for client sessions on socket.io mud server app
  *
  *  @author CM
- *  @requires
- *		- node -> events
- *		- node -> util
- *		- npm extend
+ *  
+ *  @requires events
+ *  @requires  util
+ *  @requires  extend
+ *  
  */
 
 module.exports = (function(){
@@ -51,6 +52,7 @@ module.exports = (function(){
 
 			// event listeners
 			this.socket.once('message', this._checkIsUserRegistered.bind(this));
+			this.socket.once('disconnect', this._onUserDisconnect.bind(this));
 		},
 
 
@@ -68,11 +70,12 @@ module.exports = (function(){
 
 			this.userData.name = name; // cache user name
 
-			users.findOne({username:name}, function(err, item) {
+			users.findOne({name:name}, function(err, item) {
 				if (!item){
 					self.socket.emit('message', util.format(dict.newUserGreet, self.userData.name));
 					self._requestNewPassword();
 				}else{
+					self.userData = item;
 					self._requestLogin();
 				}
 			});
@@ -86,22 +89,30 @@ module.exports = (function(){
 			this.socket.once('message', this._checkPassword.bind(this));
 		},
 
+		/**
+		 * check password against hash in database, request login again if incorrect, or call _resetPassword if user entered command 'reset password'
+		 * @param  {[type]} data [description]
+		 * @return {[type]}      [description]
+		 */
 		_checkPassword: function(data){
-			var password = data.input,
-				isCorrect = this._checkUserPassword(password);
+			var message = data.input,
+				match = bcrypt.compareSync(message, this.userData.hash);
 
-			if(password === 'email password'){
-				// this.emailPassword(this.name);
+			if(match){
+				this.socket.emit('message', dict.correctPassword);
+				this._authUser();
 
-				return;
-			}
+			}else if(message === 'reset password'){
+				this._resetPassword();
 
-			if(isCorrect){
-				this._authenticateUser();
 			}else{
 				this.socket.emit('message', dict.incorrectPassword);
-				this.socket.once('message', this._handlePassword.bind(this));
+				this._requestLogin();
 			}
+		},
+
+		_resetPassword: function(){
+			// reset password and send email using nodemailer
 		},
 
 		/**
@@ -113,7 +124,7 @@ module.exports = (function(){
 
 			this.socket.emit('privateRequest', dict.requestNewPassword);
 			this.socket.once('message', function(data){
-				if( !self._validatePassword(data.input) ){
+				if( !self._validateNewPassword(data.input) ){
 					self._requestNewPassword();
 				}else{
 					self.password = data.input;
@@ -122,17 +133,23 @@ module.exports = (function(){
 			});
 		},
 
-		_validatePassword: function(password){
+		/**
+		 * check if password fulfills rules (currently just 8+ characters)
+		 * @param  {String} password [new user password]
+		 * @return {Boolean}          [true if password fulfills rules, false if not]
+		 */
+		_validateNewPassword: function(password){
 			if( password.length < 8 ){
 				this.socket.emit('message', dict.passwordLengthError);
 				return false;
 			}
+
+			return true;
 		},
 
 		/**
 		 * request verification of new password.
 		 * On data received, check match. If matches, start user class selection
-		 * @return {[type]} [description]
 		 */
 		_verifyNewPassword: function(){
 			var self = this;
@@ -244,7 +261,6 @@ module.exports = (function(){
 
 		/**
 		 * Add any default user attributes, hash the chosen password, and add user to database.
-		 * Trigger user registration event on this, so app controller can add user/socket to user pool.
 		 */
 		_registerNewUser: function(){
 			var self = this,
@@ -256,7 +272,23 @@ module.exports = (function(){
 			users.save(this.userData, function(err, saved){
 				if( err || !saved ) self.socket.emit('message', 'There was an error saving the new user.');
 			});
-			this.socket.emit('message', JSON.stringify(this.userData));
+			this._authUser();
+		},
+
+		/**
+		 * Trigger user registration event on this, so app controller can add user/socket to user pool.
+		 * @return {[type]} [description]
+		 */
+		_authUser: function(){
+			this.emit('userAuth', this.userData);
+		},
+
+		/**
+		 * fires when user disconnects socket - triggers userRejected event so app can remove event handlers from SessionHandler instance (this)
+		 * @return {[type]} [description]
+		 */
+		_onUserDisconnect: function(){
+			this.emit('userRejected');
 		}
 
 	}, SessionHandler.prototype);
