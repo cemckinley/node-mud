@@ -19,7 +19,10 @@ module.exports = (function(){
 		util = require('util'),
 		extend = require('extend'),
 		bcrypt = require('bcrypt'),
-		userSchema = require('./config/user-schema');
+		nodemailer = require('nodemailer'),
+		passwordGen = require('password-generator'),
+		config = require('./config/env'),
+		userSchema = require('./config/user-schema'),
 		dict = require('./dict/user-session');
 
 
@@ -113,6 +116,45 @@ module.exports = (function(){
 
 		_resetPassword: function(){
 			// reset password and send email using nodemailer
+			var self = this,
+				newPassword = passwordGen(10, false),
+				users = this.db.collection('users'),
+				hash = bcrypt.hashSync(newPassword, 10); // hash password
+				smtpTransport = nodemailer.createTransport("SMTP",{
+					host: config.resetPasswordEmail.host,
+					port: config.resetPasswordEmail.port,
+					auth: {
+						user: config.resetPasswordEmail.name,
+						pass: config.resetPasswordEmail.password
+					}
+				}),
+				mailOptions = {
+					from: config.resetPasswordEmail.name, // sender address
+					to: this.userData.email, // list of receivers
+					subject: dict.resetPasswordEmailSubject, // Subject line
+					html: '<p>Hello ' + this.userData.name + ',</p><p>' + util.format(dict.resetPasswordEmailMessage, newPassword) + '</p>'
+				};
+
+			this.socket.emit('message', util.format(dict.notifyPasswordReset, this.userData.email));
+
+			this.userData.hash = hash;
+			users.update({name: this.userData.name}, {$set: {hash: hash}}, function(err, updated){
+				if( err || !updated ){
+					self.socket.emit('message', "User not updated");
+				}else{
+					self.socket.emit('message', "User updated");
+				}
+			});
+
+			smtpTransport.sendMail(mailOptions, function(error, response){
+				if( error ){
+					self.socket.emit('message', 'there was an error with sending the email, ' + JSON.stringify(error));
+				}else{
+					self.socket.emit('message', "Message sent: " + response.message);
+					self._requestLogin();
+				}
+				smtpTransport.close(); // shut down the connection pool, no more messages
+			});
 		},
 
 		/**
@@ -160,8 +202,21 @@ module.exports = (function(){
 					self.socket.emit('message', dict.passwordMismatch);
 					self._requestNewPassword();
 				}else{
-					self._startUserClassSelection();
+					self._requestEmailAddress();
 				}
+			});
+		},
+
+		/**
+		 * request an email from the user.
+		 */
+		_requestEmailAddress: function(){
+			var self = this;
+
+			this.socket.emit('message', dict.requestEmailAddress);
+			this.socket.once('message', function(data){
+				self.userData.email = data.input;
+				self._startUserClassSelection();
 			});
 		},
 
@@ -253,6 +308,7 @@ module.exports = (function(){
 					sendRequest();
 				}else{
 					self._registerNewUser();
+					self.socket.emit('message', util.format(dict.newUserWelcome, self.userData.name));
 				}
 			}
 
@@ -280,7 +336,7 @@ module.exports = (function(){
 		 * @return {[type]} [description]
 		 */
 		_authUser: function(){
-			this.emit('userAuth', this.userData);
+			this.emit('userAuth', this.userData, this.socket);
 		},
 
 		/**

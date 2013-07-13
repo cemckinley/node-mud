@@ -57,13 +57,13 @@ var nodeMud = (function(){
 		var client = new SessionHandler(socket, database);
 
 		client.once('userAuth', _onClientAuth);
-		client.once('userRejected', function(){ // on user disconnect/rejection, remove userAuth listener so client doesn't become stuck in memory
+		client.once('userRejected', function(){ // on user disconnect/rejection, remove userAuth listener so client cab be garbage collected
 			client.removeAllListeners('userAuth');
 		});
 	}
 
 	function _onClientAuth(userData, clientSocket){
-		clientSocket.emit('message', clientData.name);
+		clientSocket.emit('message', userData.name);
 	}
 
 	function _onDatabaseConnect(err, db){
