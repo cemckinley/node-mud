@@ -249,6 +249,9 @@
         }
       }
     },
+    "connect-livereload": {
+      "version": "0.2.0"
+    },
     "grunt-contrib-clean": {
       "version": "0.4.1"
     },
@@ -401,6 +404,38 @@
         }
       }
     },
+    "grunt-contrib-livereload": {
+      "version": "0.1.2",
+      "dependencies": {
+        "tiny-lr": {
+          "version": "0.0.4",
+          "dependencies": {
+            "qs": {
+              "version": "0.5.6"
+            },
+            "faye-websocket": {
+              "version": "0.4.4"
+            },
+            "noptify": {
+              "version": "0.0.3",
+              "dependencies": {
+                "nopt": {
+                  "version": "2.0.0",
+                  "dependencies": {
+                    "abbrev": {
+                      "version": "1.0.4"
+                    }
+                  }
+                }
+              }
+            },
+            "debug": {
+              "version": "0.7.2"
+            }
+          }
+        }
+      }
+    },
     "grunt-contrib-jshint": {
       "version": "0.3.0",
       "dependencies": {
@@ -448,9 +483,44 @@
         }
       }
     },
-    "grunt-contrib-livereload": {
-      "version": "0.1.2",
+    "grunt-contrib-watch": {
+      "version": "0.5.1",
       "dependencies": {
+        "gaze": {
+          "version": "0.4.1",
+          "dependencies": {
+            "globule": {
+              "version": "0.1.0",
+              "dependencies": {
+                "lodash": {
+                  "version": "1.0.1"
+                },
+                "glob": {
+                  "version": "3.1.21",
+                  "dependencies": {
+                    "graceful-fs": {
+                      "version": "1.2.3"
+                    },
+                    "inherits": {
+                      "version": "1.0.0"
+                    }
+                  }
+                },
+                "minimatch": {
+                  "version": "0.2.12",
+                  "dependencies": {
+                    "lru-cache": {
+                      "version": "2.3.0"
+                    },
+                    "sigmund": {
+                      "version": "1.0.0"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
         "tiny-lr": {
           "version": "0.0.4",
           "dependencies": {
