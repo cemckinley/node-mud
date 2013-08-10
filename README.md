@@ -16,6 +16,8 @@ A MUD engine, written in Node (in progress)
 
 ## Installation
 
+Install MongoDB: http://www.mongodb.org/ and familiarize yourself with the shell: http://docs.mongodb.org/manual/mongo/. You'll need to create a new database to use with the node mud.
+
 Clone this repo and run `npm install .` in the root directory of the project.
 
 #### Dependencies
