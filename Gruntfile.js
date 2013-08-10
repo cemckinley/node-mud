@@ -233,7 +233,6 @@ grunt.loadNpmTasks('grunt-contrib-concat');
 grunt.loadNpmTasks('grunt-contrib-connect');
 grunt.loadNpmTasks('grunt-contrib-livereload');
 grunt.loadNpmTasks('grunt-contrib-jshint');
-grunt.loadNpmTasks('grunt-contrib-qunit');
 grunt.loadNpmTasks('grunt-contrib-uglify');
 grunt.loadNpmTasks('grunt-regarde');
 grunt.loadNpmTasks('grunt-contrib-compass');
@@ -245,8 +244,8 @@ grunt.loadNpmTasks('grunt-shell-spawn');
 grunt.loadTasks('tasks/');
 
 // Default task.
-grunt.registerTask('run', ['jshint', 'qunit', 'clean:dev', 'copy:devall', 'compass:dev', 'handlebars:dev', 'shell', 'runscripts', 'livereload-start', 'connect:dev', 'regarde']);
-grunt.registerTask('build', ['jshint', 'qunit', 'clean:dist', 'copy:dist', 'compass:dist', 'handlebars:dist','concat', 'uglify', 'replacelinks']);
-grunt.registerTask('test', ['jshint', 'qunit']);
+grunt.registerTask('run', ['jshint', 'clean:dev', 'copy:devall', 'compass:dev', 'handlebars:dev', 'shell', 'runscripts', 'livereload-start', 'connect:dev', 'regarde']);
+grunt.registerTask('build', ['jshint', 'clean:dist', 'copy:dist', 'compass:dist', 'handlebars:dist','concat', 'uglify', 'replacelinks']);
+grunt.registerTask('test', ['jshint']);
 
 };
