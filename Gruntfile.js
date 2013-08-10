@@ -4,7 +4,7 @@
 module.exports = function (grunt) {
 
 
-var DEV_PATH = 'client/dev';
+var DEV_PATH = 'client/src';
 var DIST_PATH = 'client/dist';
 var TEMP_PATH = 'client/temp';
 var TEST_PATH = 'client/test';
