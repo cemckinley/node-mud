@@ -138,9 +138,9 @@ grunt.initConfig({
 	},
 	shell: {
 		startMongo: {
-			command: 'mongod', // start mongodb
+			command: 'mongod --dbpath ./db', // start mongodb
 			options: {
-				async: true
+				async: true,
 			}
 		}
 	},
