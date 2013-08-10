@@ -1,5 +1,4 @@
-
-#Node Mud Engine
+# Node Mud Engine
 
 A MUD engine, written in Node (in progress)
 
@@ -28,3 +27,17 @@ Clone this repo and run `npm install .` in the root directory of the project.
 - Nodemailer
 - bcrypt
 - Oh nevermind, just check out the package.json file
+
+# Developers
+
+### Updating dependencies
+
+If you want to update the projects core dependencies, make sure you update the package.json file:
+
+    npm update --save-dev
+
+Also, update the shrinkwrap file:
+    
+    npm shrinkwrap
+
+This will guarantee that all developers have the same core node modules.
