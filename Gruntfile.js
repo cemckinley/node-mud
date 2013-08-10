@@ -11,7 +11,7 @@ var TEST_PATH = 'client/test';
 var SERVER_APP_PATH = 'server';
 
 var path = require('path');
-var lrSnippet = require('grunt-contrib-livereload/lib/utils').livereloadSnippet;
+var lrSnippet = require('connect-livereload')();
 var folderMount = function folderMount(connect, point) {
 	return connect.static(path.resolve(point));
 };
@@ -21,25 +21,34 @@ grunt.initConfig({
 	qunit: {
 		files: [TEST_PATH + '/**/*.html']
 	},
-	regarde: {
+	watch: {
 		css: {
 			files: [
 				DEV_PATH + '/_ui/css/**/*.scss',
 				DEV_PATH + '/_ui/css/**/*.css'
 			],
-			tasks: ['compass:dev', 'copy:devcss', 'livereload']
+			tasks: ['compass:dev', 'copy:devcss'],
+            options: {
+                livereload: true
+            }
 		},
 		js: {
 			files: [
 				DEV_PATH + '/_ui/js/**/*.js'
 			],
-			tasks: ['copy:devjs', 'livereload']
+			tasks: ['copy:devjs'],
+            options: {
+                livereload: true
+            }
 		},
 		hbs: {
 			files: [
 				DEV_PATH + '/_ui/hbs/**/*.hbs'
 			],
-			tasks: ['handlebars:dev', 'livereload']
+			tasks: ['handlebars:dev'],
+            options: {
+                livereload: true
+            }
 		},
 		serverjs: {
 			files: [
@@ -52,7 +61,10 @@ grunt.initConfig({
 				DEV_PATH + '/**/*.html',
 				DEV_PATH + '/_ui/img/**/*'
 			],
-			tasks: ['copy:devall', 'livereload']
+			tasks: ['copy:devall'],
+            options: {
+                livereload: true
+            }
 		}
 	},
 	connect: {
@@ -140,7 +152,7 @@ grunt.initConfig({
 		startMongo: {
 			command: 'mongod --dbpath ./db', // start mongodb
 			options: {
-				async: true,
+				async: true
 			}
 		}
 	},
@@ -231,10 +243,9 @@ grunt.initConfig({
 grunt.loadNpmTasks('grunt-contrib-copy');
 grunt.loadNpmTasks('grunt-contrib-concat');
 grunt.loadNpmTasks('grunt-contrib-connect');
-grunt.loadNpmTasks('grunt-contrib-livereload');
 grunt.loadNpmTasks('grunt-contrib-jshint');
 grunt.loadNpmTasks('grunt-contrib-uglify');
-grunt.loadNpmTasks('grunt-regarde');
+grunt.loadNpmTasks('grunt-contrib-watch');
 grunt.loadNpmTasks('grunt-contrib-compass');
 grunt.loadNpmTasks('grunt-contrib-clean');
 grunt.loadNpmTasks('grunt-contrib-handlebars');
@@ -244,7 +255,7 @@ grunt.loadNpmTasks('grunt-shell-spawn');
 grunt.loadTasks('tasks/');
 
 // Default task.
-grunt.registerTask('run', ['jshint', 'clean:dev', 'copy:devall', 'compass:dev', 'handlebars:dev', 'shell', 'runscripts', 'livereload-start', 'connect:dev', 'regarde']);
+grunt.registerTask('run', ['jshint', 'clean:dev', 'copy:devall', 'compass:dev', 'handlebars:dev', 'shell', 'runscripts', 'connect:dev', 'watch']);
 grunt.registerTask('build', ['jshint', 'clean:dist', 'copy:dist', 'compass:dist', 'handlebars:dist','concat', 'uglify', 'replacelinks']);
 grunt.registerTask('test', ['jshint']);
 
