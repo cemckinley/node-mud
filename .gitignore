@@ -9,3 +9,7 @@ node_modules
 
 # private #
 server/config/env.js
+
+# mongo database
+db/*
+!db/.gitkeep
