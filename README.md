@@ -28,26 +28,23 @@ Find the /server/config/env-sample.js file, replace the values with your local e
 
 ## Organization
 
-Front end files are in /client/src. Server files are in /server. The front end files are compiled by `grunt run` into /client/temp and should not be edited there. The http server runs out of the /client/temp directory, where files are copied and compiled to on change.
+Front end files are in **/client/src**. Server files are in **/server**. The front end files are compiled by `grunt run` into /client/temp and should not be edited there. The http server runs out of the /client/temp directory, where files are copied and compiled to on change.
 
 The http client server runs at localhost:8001. The websocket server is set to run at localhost:8002.
 
-## Notes:
+### Notes:
 
 - SSL is currently only enabled for the websocket layer. When first running the project locally, you'll have to manually accept the certificate for the socket layer by visiting https://localhost:8002/socket.io/socket.io.js (this is the js file served to the client by Socket.io, and when viewed in browser will allow you to accept the SSL certificate). At some point SSL will be added to the http layer as well so you can accept it when visiting the page.
 
-#### Dependencies
+## Dependencies
+
+Some core dependencies include: 
 
 - Node
 - Ruby / Compass / Sass
 - MongoDB
-- Socket.io
-- Grunt
-- Nodemailer
-- bcrypt
-- Oh nevermind, just check out the package.json file
 
-# Developers
+Check the package.json file for a list of node module dependencies.
 
 ### Updating dependencies
 
@@ -60,3 +57,7 @@ Also, update the shrinkwrap file:
     npm shrinkwrap
 
 This will guarantee that all developers have the same core node modules.
+
+## Git flow
+
+We're using the [git flow](http://nvie.com/posts/a-successful-git-branching-model/) methodology on this project.
