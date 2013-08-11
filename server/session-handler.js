@@ -136,6 +136,7 @@ module.exports = (function(){
 				};
 
 			this.socket.emit('message', util.format(dict.notifyPasswordReset, this.userData.email));
+			this.socket.emit('message', 'test');
 
 			this.userData.hash = hash;
 			users.update({name: this.userData.name}, {$set: {hash: hash}}, function(err, updated){
