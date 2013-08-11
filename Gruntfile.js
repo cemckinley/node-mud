@@ -54,7 +54,10 @@ grunt.initConfig({
 			files: [
 				'server/**/*.js'
 			],
-			tasks: ['runscripts']
+			tasks: ['runscripts'],
+            options: {
+                spawn: false
+            }
 		},
 		other: {
 			files: [
