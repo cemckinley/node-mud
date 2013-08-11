@@ -119,7 +119,7 @@ module.exports = (function(){
 			var self = this,
 				newPassword = passwordGen(10, false),
 				users = this.db.collection('users'),
-				hash = bcrypt.hashSync(newPassword, 10); // hash password
+				hash = bcrypt.hashSync(newPassword, 10), // hash password
 				smtpTransport = nodemailer.createTransport("SMTP",{
 					host: config.resetPasswordEmail.host,
 					port: config.resetPasswordEmail.port,
