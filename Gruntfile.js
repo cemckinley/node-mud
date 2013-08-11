@@ -28,27 +28,27 @@ grunt.initConfig({
 				DEV_PATH + '/_ui/css/**/*.css'
 			],
 			tasks: ['compass:dev', 'copy:devcss'],
-            options: {
-                livereload: true
-            }
+			options: {
+				livereload: true
+			}
 		},
 		js: {
 			files: [
 				DEV_PATH + '/_ui/js/**/*.js'
 			],
 			tasks: ['copy:devjs'],
-            options: {
-                livereload: true
-            }
+			options: {
+				livereload: true
+			}
 		},
 		hbs: {
 			files: [
 				DEV_PATH + '/_ui/hbs/**/*.hbs'
 			],
 			tasks: ['handlebars:dev'],
-            options: {
-                livereload: true
-            }
+			options: {
+				livereload: true
+			}
 		},
 		serverjs: {
 			files: [
@@ -62,9 +62,9 @@ grunt.initConfig({
 				DEV_PATH + '/_ui/img/**/*'
 			],
 			tasks: ['copy:devall'],
-            options: {
-                livereload: true
-            }
+			options: {
+				livereload: true
+			}
 		}
 	},
 	connect: {
@@ -236,6 +236,23 @@ grunt.initConfig({
 		files: [
 			DIST_PATH + '/*.html'
 		]
+	},
+	jasmine: {
+		// client: {
+		// 	src: 'client/src/**/*.js',
+		// 	options: {
+		// 		specs: 'client/tests/*Test.js',
+		// 		vendor: 'client/src/js/lib/**/*.js'
+		// 		// helpers: 'client/tests/*Helper.js'
+		// 	}
+		// },
+		server: {
+			src: 'server/src/**/*.js',
+			options: {
+				specs: 'server/tests/*Test.js'
+				// helpers: 'spec/*Helper.js'
+			}
+		}
 	}
 });
 
@@ -250,6 +267,7 @@ grunt.loadNpmTasks('grunt-contrib-compass');
 grunt.loadNpmTasks('grunt-contrib-clean');
 grunt.loadNpmTasks('grunt-contrib-handlebars');
 grunt.loadNpmTasks('grunt-shell-spawn');
+grunt.loadNpmTasks('grunt-contrib-jasmine');
 
 // custom/ported tasks
 grunt.loadTasks('tasks/');
@@ -257,6 +275,6 @@ grunt.loadTasks('tasks/');
 // Default task.
 grunt.registerTask('run', ['jshint', 'clean:dev', 'copy:devall', 'compass:dev', 'handlebars:dev', 'shell', 'runscripts', 'connect:dev', 'watch']);
 grunt.registerTask('build', ['jshint', 'clean:dist', 'copy:dist', 'compass:dist', 'handlebars:dist','concat', 'uglify', 'replacelinks']);
-grunt.registerTask('test', ['jshint']);
+grunt.registerTask('test', ['jshint', 'jasmine:server' /*, 'jasmine:client' */]);
 
 };
