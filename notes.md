@@ -1,0 +1,36 @@
+# Notes
+
+- Main application controller
+    - session-handler.js: Account controllers (accepts socket, events on user login or new user register)
+    - Active Rooms Collection
+    - Active Users Collection
+    - NPCs Object
+- Active Room Object:
+    Active rooms are any room with a user in it, and all surrounding rooms (n,s,e,w,u,d). Rooms are deleted when no users are within one room of it.
+    - Room Id: new Room Controller
+	- Users (array): References to active users
+	- Nearby users (array)?
+	- NPC's (array): References to NPC objects
+	- Items (array)
+	- Room Model
+		- Description (string)
+		- Attributes (Object) 
+		- 'static' elements in room
+		- Player/room modifiers
+		- Name/ID
+		- Coordinates
+	- Has broadcast method that user can call to bubble up event to room
+	- Has publish method to bubble up events to global space
+- Active User Object: Active users are active user connections
+	- User Socket
+	- User ID/Name
+	- User Model:
+		- Name
+		- Class
+		- Description
+		- Level
+		- Items Object
+		- Current Coords
+	- Available actions (mixin?)
+	- Room (current room)
+	- Publishes events to currentRoom
