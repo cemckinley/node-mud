@@ -57,7 +57,7 @@ module.exports = (function(){
 		 * @type {Object}
 		 */
 		resetPasswordEmail: {
-			host: 'http://mail.yourwebhost.com',
+			host: 'mail.yourwebhost.com',
 			/**
 			 * Port for the mail server. Your web host should have docs on which port to use for their mail server.
 			 * @type {Number}
