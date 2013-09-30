@@ -2,12 +2,6 @@
 
 A MUD engine, written in Node (in progress)
 
-## Todo's
-
-- Add global session event handler for user auth and user disconnects?
-- add nodemailer function to reset password and email user
-- add example server/config/env.js file to repo
-
 ## Features
 
 - Real-time multiplayer text adventure using Socket.io to communicate between clients and server
@@ -16,7 +10,13 @@ A MUD engine, written in Node (in progress)
 
 ## Installation
 
-Install MongoDB: http://www.mongodb.org/ and familiarize yourself with the shell: http://docs.mongodb.org/manual/mongo/. You'll need to create a new database to use with the node mud.
+Requires ruby (>=2.0.0) and compass (>=0.12.2): http://compass-style.org/install/
+
+Requires node (>=0.10.18): http://nodejs.org/
+
+Requires grunt (>=0.4.4): http://gruntjs.com/getting-started
+
+Install MongoDB: http://www.mongodb.org/ and familiarize yourself with the shell: http://docs.mongodb.org/manual/mongo/. Optional, install the MongoHub GUI to manage your db: https://code.google.com/p/mongohub/.
 
 Clone this repo and run `npm install .` in the root directory of the project.
 
@@ -30,11 +30,11 @@ Find the /server/config/env-sample.js file, replace the values with your local e
 
 Front end files are in **/client/src**. Server files are in **/server**. The front end files are compiled by `grunt run` into /client/temp and should not be edited there. The http server runs out of the /client/temp directory, where files are copied and compiled to on change.
 
-The http client server runs at localhost:8001. The websocket server is set to run at localhost:8002.
+The http client server runs at `localhost:8001`. The websocket server is set to run at `localhost:8002`.
 
 ### Notes:
 
-- SSL is currently only enabled for the websocket layer. When first running the project locally, you'll have to manually accept the certificate for the socket layer by visiting https://localhost:8002/socket.io/socket.io.js (this is the js file served to the client by Socket.io, and when viewed in browser will allow you to accept the SSL certificate). At some point SSL will be added to the http layer as well so you can accept it when visiting the page.
+- SSL is currently only enabled for the websocket layer. When first running the project locally, you'll have to manually accept the certificate for the socket layer by visiting https://localhost:8002/socket.io/socket.io.js (this is the js file served to the client by Socket.io, and when viewed in browser will allow you to accept the SSL certificate). At some point SSL will be added to the https layer as well so you can accept it when visiting the page.
 
 ## Dependencies
 
@@ -42,6 +42,7 @@ Some core dependencies include:
 
 - Node
 - Ruby / Compass / Sass
+- Grunt
 - MongoDB
 
 Check the package.json file for a list of node module dependencies.
