@@ -30,11 +30,7 @@ Find the /server/config/env-sample.js file, replace the values with your local e
 
 Front end files are in **/client/src**. Server files are in **/server**. The front end files are compiled by `grunt run` into /client/temp and should not be edited there. The http server runs out of the /client/temp directory, where files are copied and compiled to on change.
 
-The http client server runs at `localhost:8001`. The websocket server is set to run at `localhost:8002`.
-
-### Notes:
-
-- SSL is currently only enabled for the websocket layer. When first running the project locally, you'll have to manually accept the certificate for the socket layer by visiting https://localhost:8002/socket.io/socket.io.js (this is the js file served to the client by Socket.io, and when viewed in browser will allow you to accept the SSL certificate). At some point SSL will be added to the https layer as well so you can accept it when visiting the page.
+The https client server runs at `https://localhost:8001`. The websocket server is set to run at `localhost:8002`.
 
 ## Dependencies
 
