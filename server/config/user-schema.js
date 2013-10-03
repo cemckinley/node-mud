@@ -1,12 +1,11 @@
-/*global console: true */
 
 /**
- *  SOCKET.IO MUD SERVER USER SCHEMA SETTINGS
+ *  @module			config/user-schema
+ *  @description	Outlines properties collected and required for new user registration, including user classes
  *
- *  @description object to define what data to request on new user registration
- *
- *  @requires
- *  
+ *  @author			cemckinley <cemckinley@gmail.com>
+ *  @copyright		Copyright (c) 2013 Author, contributors
+ *  @license		GPL v3
  */
 
 module.exports = (function(){

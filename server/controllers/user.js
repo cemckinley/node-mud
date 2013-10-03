@@ -1,16 +1,11 @@
-/*global console: true */
 
 /**
- *  USER CONTROLLER
+ *  @module			controllers/User
+ *  @description	Class for user instances, handles client/user behavior/actions/movement based on websocket input
  *
- *  @description Constructor for user instances that control user behavior and events
- *
- *  @author cemckinley <cemckinley@gamil.com>
- *  
- *  @requires events
- *  @requires  util
- *  @requires  extend
- *  
+ *  @author			cemckinley <cemckinley@gmail.com>
+ *  @copyright		Copyright (c) 2013 Author, contributors
+ *  @license		GPL v3
  */
 
 module.exports = (function(){

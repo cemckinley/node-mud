@@ -94,15 +94,17 @@ grunt.initConfig({
 			undef: true,
 			boss: true,
 			eqnull: true,
-			browser: true
+			browser: true,
+			globals: {
+				'console': true
+			}
 		},
 		files: grunt.file.expand([
 			DEV_PATH + '/_ui/js/**/*.js',
 			TEST_PATH + '/**/*.js',
 			'!' + TEST_PATH + '/qunit.js',
 			'!' + DEV_PATH + '/_ui/js/lib/**/*' // leave out 3rd party js in lib folder, since can't guarantee lint quality
-		]),
-		globals: {}
+		])
 	},
 	compass: {
 		dev: {

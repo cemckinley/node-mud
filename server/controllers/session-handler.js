@@ -1,16 +1,11 @@
-/*global console: true */
 
 /**
- *  SOCKET.IO MUD USER MODULE
+ *  @module			controllers/SessionHandler
+ *  @description	Handles user login to the MUD, registers new users, emails reset password on request
  *
- *  @description user instance for client sessions on socket.io mud server app
- *
- *  @author CM
- *  
- *  @requires events
- *  @requires  util
- *  @requires  extend
- *  
+ *  @author			cemckinley <cemckinley@gmail.com>
+ *  @copyright		Copyright (c) 2013 Author, contributors
+ *  @license		GPL v3
  */
 
 module.exports = (function(){
@@ -18,12 +13,13 @@ module.exports = (function(){
 	var events = require('events'),
 		util = require('util'),
 		extend = require('extend'),
+		_ = require('lodash'),
 		bcrypt = require('bcrypt'),
 		nodemailer = require('nodemailer'),
 		passwordGen = require('password-generator'),
-		config = require('./config/env'),
-		userSchema = require('./config/user-schema'),
-		dict = require('./dict/user-session');
+		config = require('../config/env'),
+		userSchema = require('../config/user-schema'),
+		dict = require('../dict/user-session');
 
 
 	var SessionHandler = function(socket, db){
@@ -75,7 +71,7 @@ module.exports = (function(){
 
 			users.findOne({name:name}, function(err, item) {
 				if (!item){
-					self.socket.emit('message', util.format(dict.newUserGreet, self.userData.name));
+					self.socket.emit('message', _.template(dict.newUserGreet, { username: self.userData.name }));
 					self._requestNewPassword();
 				}else{
 					self.userData = item;
@@ -88,7 +84,7 @@ module.exports = (function(){
 		 * Request password from user to login
 		 */
 		_requestLogin: function(){
-			this.socket.emit('privateRequest', util.format(dict.requestPassword, this.userData.name));
+			this.socket.emit('privateRequest', _.template(dict.requestPassword, { username: this.userData.name }));
 			this.socket.once('message', this._checkPassword.bind(this));
 		},
 
@@ -132,10 +128,10 @@ module.exports = (function(){
 					from: config.resetPasswordEmail.name, // sender address
 					to: this.userData.email, // list of receivers
 					subject: dict.resetPasswordEmailSubject, // Subject line
-					html: '<p>Hello ' + this.userData.name + ',</p><p>' + util.format(dict.resetPasswordEmailMessage, newPassword) + '</p>'
+					html: '<p>Hello ' + this.userData.name + ',</p><p>' + _.template( dict.resetPasswordEmailMessage, { password: password } ) + '</p>'
 				};
 
-			this.socket.emit('message', util.format(dict.notifyPasswordReset, this.userData.email));
+			this.socket.emit('message', _.template(dict.notifyPasswordReset, { email: this.userData.email }));
 
 			this.userData.hash = hash;
 			users.update({name: this.userData.name}, {$set: {hash: hash}}, function(err, updated){
@@ -308,7 +304,7 @@ module.exports = (function(){
 					sendRequest();
 				}else{
 					self._registerNewUser();
-					self.socket.emit('message', util.format(dict.newUserWelcome, self.userData.name));
+					self.socket.emit('message', _.template(dict.newUserWelcome, { username: self.userData.name }));
 				}
 			}
 

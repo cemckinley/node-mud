@@ -1,4 +1,3 @@
-/*global console: true */
 
 /**
  * !!!IMPORTANT!!!
@@ -9,8 +8,6 @@
  *  SOCKET.IO MUD SERVER ENVIRONMENT CONFIG DATA
  *
  *  @description static environment variables and config values
- *
- *  @requires
  *  
  */
 

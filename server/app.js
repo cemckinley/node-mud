@@ -1,18 +1,11 @@
-/*global console: true */
 
 /**
- *  SOCKET.IO MUD SERVER
+ *  @module			main application controller
+ *  @description	Runs socket.io and static http server, listens for client connections and directs user/room instances. 
  *
- *  @description creates http server and adds socket.io instance
- *
- *  @author CM
- *  @requires
- *      - npm -> socket.io
- *      - npm -> mongodb
- *      - node -> http
- *      - node -> fs
- *      - ./config.js
- *      - ./session-handler.js
+ *  @author			cemckinley <cemckinley@gmail.com>
+ *  @copyright		Copyright (c) 2013 Author, contributors
+ *  @license		GPL v3
  */
 
 var fs = require('fs'),
@@ -20,7 +13,7 @@ var fs = require('fs'),
 	socketio = require('socket.io'),
 	mongoClient = require('mongodb').MongoClient,
 	config = require('./config/env'),
-	SessionHandler = require('./session-handler');
+	SessionHandler = require('./controllers/session-handler');
 
 
 var nodeMud = (function(){
