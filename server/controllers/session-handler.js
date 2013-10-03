@@ -18,7 +18,7 @@ module.exports = (function(){
 		nodemailer = require('nodemailer'),
 		passwordGen = require('password-generator'),
 		config = require('../config/env'),
-		userSchema = require('../config/user-schema'),
+		userSchema = require('../config/new-user-schema'),
 		dict = require('../dict/user-session');
 
 

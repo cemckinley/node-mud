@@ -1,6 +1,6 @@
 
 /**
- *  @module			config/user-schema
+ *  @module			config/new-user-schema
  *  @description	Outlines properties collected and required for new user registration, including user classes
  *
  *  @author			cemckinley <cemckinley@gmail.com>

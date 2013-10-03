@@ -10,8 +10,7 @@
 
 module.exports = (function(){
 
-	var events = require('events'),
-		extend = require('extend'),
+	var extend = require('extend'),
 		config = require('./config/env');
 
 
@@ -20,14 +19,26 @@ module.exports = (function(){
 		this.socket = socket;
 		this.model = userData;
 
-		events.EventEmitter.call(this);
 		this.init();
 	};
 
-	// inherit eventEmitter class to emit events for use by rooms
-	util.inherits(User, events.EventEmitter);
-
 	User.prototype = extend({
+
+		// PROPERTIES
+
+		/**
+		 * socket.io client connection instance
+		 * @type {Object}
+		 */
+		socket: null,
+		/**
+		 * client data model
+		 * @type {Object}
+		 */
+		model: null,
+
+
+		// METHODS
 
 		init: function(){
 
