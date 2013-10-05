@@ -108,6 +108,7 @@ module.exports = (function(){
 
 			if(match){
 				this.socket.emit('message', dict.correctPassword);
+				this.socket.emit('message', JSON.stringify(this.userData));
 				this._authUser();
 
 			}else if(message === 'reset password'){
@@ -331,9 +332,13 @@ module.exports = (function(){
 			extend(this.userData, userSchema.startingAttributes); // add default/starting character attributes
 
 			users.save(this.userData, function(err, saved){
-				if( err || !saved ) self.socket.emit('message', 'There was an error saving the new user.');
+				if( err || !saved ){
+					self.socket.emit('message', 'There was an error saving the new user.');
+				}else{
+					this.socket.emit('message', JSON.stringify(saved));
+					self._authUser();
+				}
 			});
-			this._authUser();
 		},
 
 		/**
