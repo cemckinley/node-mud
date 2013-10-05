@@ -1,6 +1,6 @@
 {
-  "name": "mud-engine",
-  "version": "1.0.0",
+  "name": "node-mud",
+  "version": "0.0.1",
   "dependencies": {
     "grunt": {
       "version": "0.4.1",
@@ -130,9 +130,171 @@
         }
       }
     },
+    "socket.io": {
+      "version": "0.9.16",
+      "from": "socket.io@~0.9.16",
+      "dependencies": {
+        "socket.io-client": {
+          "version": "0.9.16",
+          "from": "socket.io-client@0.9.16",
+          "dependencies": {
+            "uglify-js": {
+              "version": "1.2.5",
+              "from": "uglify-js@1.2.5"
+            },
+            "ws": {
+              "version": "0.4.27",
+              "from": "ws@0.4.x",
+              "dependencies": {
+                "commander": {
+                  "version": "0.6.1",
+                  "from": "commander@~0.6.1"
+                },
+                "tinycolor": {
+                  "version": "0.0.1",
+                  "from": "tinycolor@0.x"
+                },
+                "options": {
+                  "version": "0.0.5",
+                  "from": "options@>=0.0.5"
+                }
+              }
+            },
+            "xmlhttprequest": {
+              "version": "1.4.2",
+              "from": "xmlhttprequest@1.4.2"
+            },
+            "active-x-obfuscator": {
+              "version": "0.0.1",
+              "from": "active-x-obfuscator@0.0.1",
+              "dependencies": {
+                "zeparser": {
+                  "version": "0.0.5",
+                  "from": "zeparser@0.0.5"
+                }
+              }
+            }
+          }
+        },
+        "policyfile": {
+          "version": "0.0.4",
+          "from": "policyfile@0.0.4"
+        },
+        "base64id": {
+          "version": "0.1.0",
+          "from": "base64id@0.1.0"
+        },
+        "redis": {
+          "version": "0.7.3",
+          "from": "redis@0.7.3"
+        }
+      }
+    },
+    "exec-sync": {
+      "version": "0.1.6",
+      "from": "exec-sync@~0.1.6",
+      "dependencies": {
+        "ffi": {
+          "version": "1.2.5",
+          "from": "ffi@=1.2.5",
+          "dependencies": {
+            "bindings": {
+              "version": "1.1.1",
+              "from": "bindings@*"
+            },
+            "debug": {
+              "version": "0.7.2",
+              "from": "debug@*"
+            },
+            "ref": {
+              "version": "0.1.3",
+              "from": "ref@*"
+            },
+            "ref-struct": {
+              "version": "0.0.5",
+              "from": "ref-struct@*"
+            }
+          }
+        }
+      }
+    },
     "extend": {
       "version": "1.1.3",
       "from": "extend@~1.1.3"
+    },
+    "bcrypt": {
+      "version": "0.7.6",
+      "from": "bcrypt@~0.7.6",
+      "dependencies": {
+        "bindings": {
+          "version": "1.0.0",
+          "from": "bindings@1.0.0"
+        }
+      }
+    },
+    "mongodb": {
+      "version": "1.3.17",
+      "from": "mongodb@~1.3.17",
+      "dependencies": {
+        "bson": {
+          "version": "0.2.2",
+          "from": "bson@0.2.2"
+        },
+        "kerberos": {
+          "version": "0.0.3",
+          "from": "kerberos@0.0.3"
+        }
+      }
+    },
+    "nodemailer": {
+      "version": "0.5.2",
+      "from": "nodemailer@~0.5.2",
+      "dependencies": {
+        "mailcomposer": {
+          "version": "0.2.1",
+          "from": "mailcomposer@~0.2",
+          "dependencies": {
+            "mimelib": {
+              "version": "0.2.12",
+              "from": "mimelib@~0.2",
+              "dependencies": {
+                "encoding": {
+                  "version": "0.1.6",
+                  "from": "encoding@~0.1",
+                  "dependencies": {
+                    "iconv-lite": {
+                      "version": "0.2.7",
+                      "from": "iconv-lite@0.2.7"
+                    }
+                  }
+                },
+                "addressparser": {
+                  "version": "0.1.3",
+                  "from": "addressparser@~0.1"
+                }
+              }
+            },
+            "mime": {
+              "version": "1.2.9",
+              "from": "mime@1.2.9"
+            }
+          }
+        },
+        "simplesmtp": {
+          "version": "0.3.6",
+          "from": "simplesmtp@~0.2 || ~0.3",
+          "dependencies": {
+            "rai": {
+              "version": "0.1.7",
+              "from": "rai@~0.1"
+            },
+            "xoauth2": {
+              "version": "0.1.8",
+              "from": "xoauth2@~0.1"
+            }
+          }
+        }
+      }
     },
     "password-generator": {
       "version": "0.2.1",
@@ -158,6 +320,11 @@
       "version": "2.2.0",
       "from": "lodash@",
       "resolved": "https://registry.npmjs.org/lodash/-/lodash-2.2.0.tgz"
+    },
+    "class.extend": {
+      "version": "0.9.1",
+      "from": "class.extend@",
+      "resolved": "https://registry.npmjs.org/class.extend/-/class.extend-0.9.1.tgz"
     }
   }
 }

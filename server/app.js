@@ -10,6 +10,7 @@
 
 var fs = require('fs'),
 	https = require('https'),
+	EventEmitter = require('events').EventEmitter,
 	socketio = require('socket.io'),
 	mongoClient = require('mongodb').MongoClient,
 	config = require('./config/env'),
@@ -26,6 +27,7 @@ var nodeMud = (function(){
 			passphrase: config.ssl.passphrase
 		},
 		httpsServer = https.createServer(httpsOptions, _httpsHandler).listen(config.socket.port), // server for socket.io socket
+		globalEvents = new EventEmitter(),
 		io = socketio.listen(httpsServer), // websocket
 		database; // stores db connection
 
@@ -39,6 +41,7 @@ var nodeMud = (function(){
 
 		// event listeners
 		io.sockets.on('connection', _onClientConnect);
+		globalEvents.on('userAuth', _onClientAuth);
 	}
 
 	function _httpsHandler(req, res){
@@ -47,16 +50,11 @@ var nodeMud = (function(){
 	}
 
 	function _onClientConnect(socket){
-		var client = new SessionHandler(socket, database);
-
-		client.once('userAuth', _onClientAuth);
-		client.once('userRejected', function(){ // on user disconnect/rejection, remove userAuth listener so client cab be garbage collected
-			client.removeAllListeners('userAuth');
-		});
+		var client = new SessionHandler(socket, database, globalEvents);
 	}
 
 	function _onClientAuth(userData, clientSocket){
-		clientSocket.emit('message', userData.name);
+		clientSocket.emit('message', userData.name + 'successful user auth');
 	}
 
 	function _onDatabaseConnect(err, db){

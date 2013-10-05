@@ -10,9 +10,9 @@
 
 module.exports = (function(){
 
-	var events = require('events'),
-		util = require('util'),
+	var util = require('util'),
 		extend = require('extend'),
+		Class = require('class.extend'),
 		_ = require('lodash'),
 		bcrypt = require('bcrypt'),
 		nodemailer = require('nodemailer'),
@@ -22,28 +22,37 @@ module.exports = (function(){
 		dict = require('../dict/user-session');
 
 
-	var SessionHandler = function(socket, db){
+	var SessionHandler = Class.extend({
 
-		this.socket = socket;
-		this.db = db;
-
-		events.EventEmitter.call(this);
-		this.init();
-	};
-
-	// inherit eventEmitter class to emit events for use by app.js
-	util.inherits(SessionHandler, events.EventEmitter);
-
-	SessionHandler.prototype = extend({
-
+		/**
+		 * socket.io client object/connection
+		 * @type {Object}
+		 */
+		socket: null, // added on init
+		/**
+		 * MongoDB connection
+		 * @type {Object}
+		 */
+		db: null, // added on init
+		/**
+		 * User data hash stored and manipulated here before returning to main app through global userAuth event
+		 * @type {Object}
+		 */
 		userData: {},
+		/**
+		 * Password is not stored with userData in db, instead stored here before being salted/hashed
+		 * @type {String}
+		 */
 		password: null, // password stored separately from user data
+
 
 		/** PUBLIC **/
 
-		init: function(){
+		init: function(socket, db, globalEvents, options){
 
-			// shared properties
+			this.socket = socket;
+			this.db = db;
+			this.globalEvents = globalEvents;
 
 			// setup
 			this.socket.emit('message', dict.welcome);
@@ -328,22 +337,22 @@ module.exports = (function(){
 		},
 
 		/**
-		 * Trigger user registration event on this, so app controller can add user/socket to user pool.
+		 * Trigger user registration event on global events object, so app controller can add user/socket to user pool.
 		 * @return {[type]} [description]
 		 */
 		_authUser: function(){
-			this.emit('userAuth', this.userData, this.socket);
+			this.globalEvents.emit('userAuth', this.userData, this.socket);
 		},
 
 		/**
-		 * fires when user disconnects socket - triggers userRejected event so app can remove event handlers from SessionHandler instance (this)
+		 * fires when user disconnects socket - triggers userRejected event on global events object
 		 * @return {[type]} [description]
 		 */
 		_onUserDisconnect: function(){
-			this.emit('userRejected');
+			this.globalEvents.emit('userRejected');
 		}
 
-	}, SessionHandler.prototype);
+	});
 
 
 	return SessionHandler;

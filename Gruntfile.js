@@ -9,6 +9,8 @@ var DIST_PATH = 'client/dist';
 var TEMP_PATH = 'client/temp';
 var TEST_PATH = 'client/test';
 var SERVER_APP_PATH = 'server';
+var SSL_KEY_PATH = SERVER_APP_PATH + '/keys/websocket-ssl.key';
+var SSL_CERT_PATH = SERVER_APP_PATH + '/keys/websocket-ssl.crt';
 
 var path = require('path');
 var lrSnippet = require('connect-livereload')();
@@ -29,7 +31,10 @@ grunt.initConfig({
             ],
             tasks: ['compass:dev', 'copy:devcss'],
             options: {
-                livereload: true
+                livereload: {
+                    key: SSL_KEY_PATH,
+                    cert: SSL_CERT_PATH
+                }
             }
         },
         js: {
@@ -38,7 +43,10 @@ grunt.initConfig({
             ],
             tasks: ['copy:devjs'],
             options: {
-                livereload: true
+                livereload: {
+                    key: SSL_KEY_PATH,
+                    cert: SSL_CERT_PATH
+                }
             }
         },
         hbs: {
@@ -47,7 +55,10 @@ grunt.initConfig({
             ],
             tasks: ['handlebars:dev'],
             options: {
-                livereload: true
+                livereload: {
+                    key: SSL_KEY_PATH,
+                    cert: SSL_CERT_PATH
+                }
             }
         },
         serverjs: {
@@ -66,7 +77,10 @@ grunt.initConfig({
             ],
             tasks: ['copy:devall'],
             options: {
-                livereload: true
+                livereload: {
+                    key: SSL_KEY_PATH,
+                    cert: SSL_CERT_PATH
+                }
             }
         }
     },
@@ -75,8 +89,8 @@ grunt.initConfig({
             options: {
                 port: 8001,
                 protocol: 'https',
-                key: grunt.file.read(SERVER_APP_PATH + '/keys/websocket-ssl.key').toString(),
-                cert: grunt.file.read(SERVER_APP_PATH + '/keys/websocket-ssl.crt').toString(),
+                key: grunt.file.read(SSL_KEY_PATH).toString(),
+                cert: grunt.file.read(SSL_CERT_PATH).toString(),
                 ca: grunt.file.read(SERVER_APP_PATH + '/keys/websocket-ssl.csr').toString(),
                 passphrase: '123456',
                 hostname: null, // setting hostname to null allows requests at port 8001 locally for any host name (i.e. localhost, network IP or machine name)
