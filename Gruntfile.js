@@ -3,70 +3,82 @@
 
 module.exports = function (grunt) {
 
-
-var DEV_PATH = 'client/src';
-var DIST_PATH = 'client/dist';
-var TEMP_PATH = 'client/temp';
-var TEST_PATH = 'client/test';
-var SERVER_APP_PATH = 'server';
-var SSL_KEY_PATH = SERVER_APP_PATH + '/keys/websocket-ssl.key';
-var SSL_CERT_PATH = SERVER_APP_PATH + '/keys/websocket-ssl.crt';
-
 var path = require('path');
 var lrSnippet = require('connect-livereload')();
 var folderMount = function folderMount(connect, point) {
     return connect.static(path.resolve(point));
 };
 
-// Project configuration.
+// these vars are used as immediate values in the connect config object, so need to be
+// defined before the whole grunt config object
+var serverAppPath = './server';
+var sslKeyPath = serverAppPath + '/keys/websocket-ssl.key';
+var sslCertPath = serverAppPath + '/keys/websocket-ssl.crt';
+
+
 grunt.initConfig({
+
+    /* CONFIG VARS */
+
+    port: 8001,
+    livereloadPort: 1337,
+    clientSrcPath: './client/src',
+    clientTempPath: './client/temp',
+    clientDistPath: './client/dist',
+    clientTestDir: './client/test',
+    serverAppPath: serverAppPath,
+    sslKeyPath: sslKeyPath,
+    sslCertPath: sslCertPath,
+
+
+    /* TASK CONFIG */
 
     watch: {
         sass: {
             files: [
-                DEV_PATH + '/_ui/css/**/*.scss'
+                '<%= clientSrcPath %>' + '/_ui/css/**/*.scss'
             ],
             tasks: ['sass:dev'],
             options: {
                 livereload: {
-                    key: SSL_KEY_PATH,
-                    cert: SSL_CERT_PATH
+                    key: '<%= sslKeyPath %>',
+                    cert: '<%= sslCertPath %>'
                 }
             }
         },
         css: {
             files: [
-                DEV_PATH + '/_ui/css/**/*.css'
+                '<%= clientSrcPath %>' + '/_ui/css/**/*.css'
             ],
             tasks: ['copy:devcss'],
             options: {
                 livereload: {
-                    key: SSL_KEY_PATH,
-                    cert: SSL_CERT_PATH
+                    key: '<%= sslKeyPath %>',
+                    cert: '<%= sslCertPath %>'
                 }
             }
         },
         js: {
             files: [
-                DEV_PATH + '/_ui/js/**/*.js'
+                '<%= clientSrcPath %>' + '/_ui/js/**/*.js'
             ],
             tasks: ['copy:devjs'],
             options: {
                 livereload: {
-                    key: SSL_KEY_PATH,
-                    cert: SSL_CERT_PATH
+                    key: '<%= sslKeyPath %>',
+                    cert: '<%= sslCertPath %>'
                 }
             }
         },
         hbs: {
             files: [
-                DEV_PATH + '/_ui/hbs/**/*.hbs'
+                '<%= clientSrcPath %>' + '/_ui/hbs/**/*.hbs'
             ],
             tasks: ['handlebars:dev'],
             options: {
                 livereload: {
-                    key: SSL_KEY_PATH,
-                    cert: SSL_CERT_PATH
+                    key: '<%= sslKeyPath %>',
+                    cert: '<%= sslCertPath %>'
                 }
             }
         },
@@ -81,14 +93,14 @@ grunt.initConfig({
         },
         other: {
             files: [
-                DEV_PATH + '/**/*.html',
-                DEV_PATH + '/_ui/img/**/*'
+                '<%= clientSrcPath %>' + '/**/*.html',
+                '<%= clientSrcPath %>' + '/_ui/img/**/*'
             ],
             tasks: ['copy:devall'],
             options: {
                 livereload: {
-                    key: SSL_KEY_PATH,
-                    cert: SSL_CERT_PATH
+                    key: '<%= sslKeyPath %>',
+                    cert: '<%= sslCertPath %>'
                 }
             }
         }
@@ -97,16 +109,16 @@ grunt.initConfig({
     connect: {
         dev: {
             options: {
-                port: 8001,
+                port: '<%= port %>',
                 protocol: 'https',
-                key: grunt.file.read(SSL_KEY_PATH).toString(),
-                cert: grunt.file.read(SSL_CERT_PATH).toString(),
-                ca: grunt.file.read(SERVER_APP_PATH + '/keys/websocket-ssl.csr').toString(),
+                key: grunt.file.read( sslKeyPath ).toString(),
+                cert: grunt.file.read( sslCertPath ).toString(),
+                ca: grunt.file.read( serverAppPath + '/keys/websocket-ssl.csr' ).toString(),
                 passphrase: '123456',
                 hostname: null, // setting hostname to null allows requests at port 8001 locally for any host name (i.e. localhost, network IP or machine name)
-                base: TEMP_PATH,
+                base: '<%= clientTempPath %>',
                 middleware: function(connect, options) {
-                    return [lrSnippet, folderMount(connect, TEMP_PATH)];
+                    return [lrSnippet, folderMount(connect, '<%= clientTempPath %>')];
                 }
             }
         }
@@ -130,10 +142,10 @@ grunt.initConfig({
             }
         },
         files: grunt.file.expand([
-            DEV_PATH + '/_ui/js/**/*.js',
-            TEST_PATH + '/**/*.js',
-            '!' + TEST_PATH + '/qunit.js',
-            '!' + DEV_PATH + '/_ui/js/lib/**/*' // leave out 3rd party js in lib folder, since can't guarantee lint quality
+            '<%= clientSrcPath %>' + '/_ui/js/**/*.js',
+            '<%= clientTestDir %>' + '/**/*.js',
+            '!' + '<%= clientTestDir %>' + '/qunit.js',
+            '!' + '<%= clientSrcPath %>' + '/_ui/js/lib/**/*' // leave out 3rd party js in lib folder, since can't guarantee lint quality
         ])
     },
 
@@ -141,9 +153,9 @@ grunt.initConfig({
         dev: {
             files: [{
                 expand: true,
-                cwd: DEV_PATH + '/_ui/css/',
+                cwd: '<%= clientSrcPath %>' + '/_ui/css/',
                 src: ['**/*.scss'],
-                dest: TEMP_PATH + '/_ui/css/',
+                dest: '<%= clientTempPath %>' + '/_ui/css/',
                 ext: '.css'
             }],
             options: {
@@ -154,9 +166,9 @@ grunt.initConfig({
         dist: {
             files: [{
                 expand: true,
-                cwd: DEV_PATH + '/_ui/css/',
+                cwd: '<%= clientSrcPath %>' + '/_ui/css/',
                 src: ['**/*.scss'],
-                dest: DIST_PATH + '/_ui/css/',
+                dest: '<%= clientDistPath %>' + '/_ui/css/',
                 ext: '.css'
             }],
             options: {
@@ -177,8 +189,8 @@ grunt.initConfig({
             },
             files: [
                 {
-                    dest: TEMP_PATH + '/_ui/js/templates.js',
-                    src: DEV_PATH + '/_ui/hbs/**/*.hbs'
+                    dest: '<%= clientTempPath %>' + '/_ui/js/templates.js',
+                    src: '<%= clientSrcPath %>' + '/_ui/hbs/**/*.hbs'
                 }
             ]
         },
@@ -188,15 +200,15 @@ grunt.initConfig({
             },
             files: [
                 {
-                    dest: DIST_PATH + '/_ui/js/templates.js',
-                    src: DEV_PATH + '/_ui/hbs/**/*.hbs'
+                    dest: '<%= clientDistPath %>' + '/_ui/js/templates.js',
+                    src: '<%= clientSrcPath %>' + '/_ui/hbs/**/*.hbs'
                 }
             ]
         }
     },
 
     runscripts: {
-        websocket: [SERVER_APP_PATH + '/app.js'] // start server app node process
+        websocket: ['<%= serverAppPath %>' + '/app.js'] // start server app node process
     },
 
     shell: {
@@ -209,8 +221,8 @@ grunt.initConfig({
     },
 
     clean: {
-        dev: [TEMP_PATH],
-        dist: [DIST_PATH]
+        dev: ['<%= clientTempPath %>'],
+        dist: ['<%= clientDistPath %>']
     },
 
     copy: {
@@ -221,8 +233,8 @@ grunt.initConfig({
                     src: [
                         '_ui/css/**/*.css'
                     ],
-                    dest: TEMP_PATH + '/',
-                    cwd: DEV_PATH + '/'
+                    dest: '<%= clientTempPath %>' + '/',
+                    cwd: '<%= clientSrcPath %>' + '/'
                 }
             ]
         },
@@ -233,8 +245,8 @@ grunt.initConfig({
                     src: [
                         '_ui/js/**/*.js'
                     ],
-                    dest: TEMP_PATH + '/',
-                    cwd: DEV_PATH + '/'
+                    dest: '<%= clientTempPath %>' + '/',
+                    cwd: '<%= clientSrcPath %>' + '/'
                 }
             ]
         },
@@ -247,8 +259,8 @@ grunt.initConfig({
                         '!**/*.scss', // copy over everything except scss, which will be processed/copied with compass
                         '!**/hbs/**' // don't copy over handlebar directory, since they are precompiled into _ui/js/templates.js
                     ],
-                    dest: TEMP_PATH + '/',
-                    cwd: DEV_PATH + '/'
+                    dest: '<%= clientTempPath %>' + '/',
+                    cwd: '<%= clientSrcPath %>' + '/'
                 }
             ]
         },
@@ -262,8 +274,8 @@ grunt.initConfig({
                         '!_ui/js/**',
                         '!_ui/hbs/**'
                     ],
-                    dest: DIST_PATH + '/',
-                    cwd: DEV_PATH + '/'
+                    dest: '<%= clientDistPath %>' + '/',
+                    cwd: '<%= clientSrcPath %>' + '/'
 
                 }
             ]
@@ -272,22 +284,22 @@ grunt.initConfig({
 
     concat: {
         dist: {
-            src: [DEV_PATH + '/_ui/js/**/*.js'],
-            dest: DIST_PATH + '/_ui/js/scripts.js'
+            src: ['<%= clientSrcPath %>' + '/_ui/js/**/*.js'],
+            dest: '<%= clientDistPath %>' + '/_ui/js/scripts.js'
         }
     },
 
     uglify: {
         dist: {
-            dest: DIST_PATH + '/_ui/js/scripts.min.js',
-            src: [DIST_PATH + '/_ui/js/scripts.js']
+            dest: '<%= clientDistPath %>' + '/_ui/js/scripts.min.js',
+            src: ['<%= clientDistPath %>' + '/_ui/js/scripts.js']
         }
     },
 
     // replace js and css link build blocks within specified files with their concatenated versions
     replacelinks: {
         files: [
-            DIST_PATH + '/*.html'
+            '<%= clientDistPath %>' + '/*.html'
         ]
     },
 

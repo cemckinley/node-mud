@@ -30,8 +30,14 @@
     "connect-livereload": "~0.3.0",
     "grunt-contrib-sass": "~0.6.0"
   },
-  "repository": {},
-  "author": "",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:cemckinley/node-mud.git"
+  },
+  "contributors": [
+    "cemckinley <cemckinley@gmail.com>",
+    "austinhappel <austin@austinhappel.com>"
+  ],
   "license": "GPLv3",
   "private": false,
   "readmeFilename": "readme.md",
