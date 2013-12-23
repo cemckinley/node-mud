@@ -3,17 +3,13 @@
 
 module.exports = function (grunt) {
 
-var path = require('path');
-var lrSnippet = require('connect-livereload')();
-var folderMount = function folderMount(connect, point) {
-    return connect.static(path.resolve(point));
-};
 
-// these vars are used as immediate values in the connect config object, so need to be
+// these vars are used as immediate function args in the connect config object, so need to be
 // defined before the whole grunt config object
 var serverAppPath = './server';
 var sslKeyPath = serverAppPath + '/keys/websocket-ssl.key';
 var sslCertPath = serverAppPath + '/keys/websocket-ssl.crt';
+var sslCsrPath = serverAppPath + '/keys/websocket-ssl.csr';
 
 
 grunt.initConfig({
@@ -29,58 +25,42 @@ grunt.initConfig({
     serverAppPath: serverAppPath,
     sslKeyPath: sslKeyPath,
     sslCertPath: sslCertPath,
+    sslPassphrase: '123456',
 
 
     /* TASK CONFIG */
 
     watch: {
+        options: {
+            livereload: {
+                key: '<%= sslKeyPath %>',
+                cert: '<%= sslCertPath %>',
+                port: '<%= livereloadPort %>'
+            }
+        },
         sass: {
             files: [
                 '<%= clientSrcPath %>' + '/_ui/css/**/*.scss'
             ],
             tasks: ['sass:dev'],
-            options: {
-                livereload: {
-                    key: '<%= sslKeyPath %>',
-                    cert: '<%= sslCertPath %>'
-                }
-            }
         },
         css: {
             files: [
                 '<%= clientSrcPath %>' + '/_ui/css/**/*.css'
             ],
-            tasks: ['copy:devcss'],
-            options: {
-                livereload: {
-                    key: '<%= sslKeyPath %>',
-                    cert: '<%= sslCertPath %>'
-                }
-            }
+            tasks: ['copy:devcss']
         },
         js: {
             files: [
                 '<%= clientSrcPath %>' + '/_ui/js/**/*.js'
             ],
-            tasks: ['copy:devjs'],
-            options: {
-                livereload: {
-                    key: '<%= sslKeyPath %>',
-                    cert: '<%= sslCertPath %>'
-                }
-            }
+            tasks: ['copy:devjs']
         },
         hbs: {
             files: [
                 '<%= clientSrcPath %>' + '/_ui/hbs/**/*.hbs'
             ],
-            tasks: ['handlebars:dev'],
-            options: {
-                livereload: {
-                    key: '<%= sslKeyPath %>',
-                    cert: '<%= sslCertPath %>'
-                }
-            }
+            tasks: ['handlebars:dev']
         },
         serverjs: {
             files: [
@@ -88,7 +68,8 @@ grunt.initConfig({
             ],
             tasks: ['runscripts'],
             options: {
-                spawn: false
+                spawn: false,
+                livereload: false // app restart is handled via 'runscripts'
             }
         },
         other: {
@@ -96,13 +77,7 @@ grunt.initConfig({
                 '<%= clientSrcPath %>' + '/**/*.html',
                 '<%= clientSrcPath %>' + '/_ui/img/**/*'
             ],
-            tasks: ['copy:devall'],
-            options: {
-                livereload: {
-                    key: '<%= sslKeyPath %>',
-                    cert: '<%= sslCertPath %>'
-                }
-            }
+            tasks: ['copy:devall']
         }
     },
 
@@ -113,13 +88,11 @@ grunt.initConfig({
                 protocol: 'https',
                 key: grunt.file.read( sslKeyPath ).toString(),
                 cert: grunt.file.read( sslCertPath ).toString(),
-                ca: grunt.file.read( serverAppPath + '/keys/websocket-ssl.csr' ).toString(),
-                passphrase: '123456',
+                ca: grunt.file.read( sslCsrPath ).toString(),
+                passphrase: '<%= sslPassphrase %>',
                 hostname: null, // setting hostname to null allows requests at port 8001 locally for any host name (i.e. localhost, network IP or machine name)
                 base: '<%= clientTempPath %>',
-                middleware: function(connect, options) {
-                    return [lrSnippet, folderMount(connect, '<%= clientTempPath %>')];
-                }
+                livereload: '<%= livereloadPort %>'
             }
         }
     },
