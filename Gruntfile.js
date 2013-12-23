@@ -40,25 +40,31 @@ grunt.initConfig({
         },
         sass: {
             files: [
-                '<%= clientSrcPath %>' + '/_ui/css/**/*.scss'
+                '<%= clientSrcPath %>' + '/styles/**/*.scss'
             ],
             tasks: ['sass:dev'],
         },
-        css: {
-            files: [
-                '<%= clientSrcPath %>' + '/_ui/css/**/*.css'
-            ],
-            tasks: ['copy:devcss']
-        },
         js: {
             files: [
-                '<%= clientSrcPath %>' + '/_ui/js/**/*.js'
+                '<%= clientSrcPath %>' + '/js/**/*.js'
             ],
             tasks: ['copy:devjs']
         },
+        html: {
+            files: [
+                '<%= clientSrcPath %>' + '/html/**/*.html'
+            ],
+            tasks: ['copy:devhtml']
+        },
+        assets: {
+            files: [
+                '<%= clientSrcPath %>' + '/assets/**/*'
+            ],
+            tasks: ['copy:devassets']
+        },
         hbs: {
             files: [
-                '<%= clientSrcPath %>' + '/_ui/hbs/**/*.hbs'
+                '<%= clientSrcPath %>' + '/hbs/**/*.hbs'
             ],
             tasks: ['handlebars:dev']
         },
@@ -71,13 +77,6 @@ grunt.initConfig({
                 spawn: false,
                 livereload: false // app restart is handled via 'runscripts'
             }
-        },
-        other: {
-            files: [
-                '<%= clientSrcPath %>' + '/**/*.html',
-                '<%= clientSrcPath %>' + '/_ui/img/**/*'
-            ],
-            tasks: ['copy:devall']
         }
     },
 
@@ -115,10 +114,9 @@ grunt.initConfig({
             }
         },
         files: grunt.file.expand([
-            '<%= clientSrcPath %>' + '/_ui/js/**/*.js',
+            '<%= clientSrcPath %>' + '/js/**/*.js',
             '<%= clientTestDir %>' + '/**/*.js',
-            '!' + '<%= clientTestDir %>' + '/qunit.js',
-            '!' + '<%= clientSrcPath %>' + '/_ui/js/lib/**/*' // leave out 3rd party js in lib folder, since can't guarantee lint quality
+            '!' + '<%= clientSrcPath %>' + '/js/lib/**/*' // leave out 3rd party js in lib folder, since can't guarantee lint quality
         ])
     },
 
@@ -126,7 +124,7 @@ grunt.initConfig({
         dev: {
             files: [{
                 expand: true,
-                cwd: '<%= clientSrcPath %>' + '/_ui/css/',
+                cwd: '<%= clientSrcPath %>' + '/styles/',
                 src: ['**/*.scss'],
                 dest: '<%= clientTempPath %>' + '/_ui/css/',
                 ext: '.css'
@@ -139,7 +137,7 @@ grunt.initConfig({
         dist: {
             files: [{
                 expand: true,
-                cwd: '<%= clientSrcPath %>' + '/_ui/css/',
+                cwd: '<%= clientSrcPath %>' + '/styles/',
                 src: ['**/*.scss'],
                 dest: '<%= clientDistPath %>' + '/_ui/css/',
                 ext: '.css'
@@ -163,7 +161,7 @@ grunt.initConfig({
             files: [
                 {
                     dest: '<%= clientTempPath %>' + '/_ui/js/templates.js',
-                    src: '<%= clientSrcPath %>' + '/_ui/hbs/**/*.hbs'
+                    src: '<%= clientSrcPath %>' + '/hbs/**/*.hbs'
                 }
             ]
         },
@@ -174,7 +172,7 @@ grunt.initConfig({
             files: [
                 {
                     dest: '<%= clientDistPath %>' + '/_ui/js/templates.js',
-                    src: '<%= clientSrcPath %>' + '/_ui/hbs/**/*.hbs'
+                    src: '<%= clientSrcPath %>' + '/hbs/**/*.hbs'
                 }
             ]
         }
@@ -199,56 +197,70 @@ grunt.initConfig({
     },
 
     copy: {
-        devcss: {
-            files: [
-                {
-                    expand: true,
-                    src: [
-                        '_ui/css/**/*.css'
-                    ],
-                    dest: '<%= clientTempPath %>' + '/',
-                    cwd: '<%= clientSrcPath %>' + '/'
-                }
-            ]
-        },
         devjs: {
             files: [
                 {
                     expand: true,
                     src: [
-                        '_ui/js/**/*.js'
+                        '**/*.js'
                     ],
-                    dest: '<%= clientTempPath %>' + '/',
-                    cwd: '<%= clientSrcPath %>' + '/'
+                    dest: '<%= clientTempPath %>' + '/_ui/js/',
+                    cwd: '<%= clientSrcPath %>' + '/js/'
                 }
             ]
         },
-        devall: {
+        devhtml: {
             files: [
                 {
                     expand: true,
                     src: [
-                        '**',
-                        '!**/*.scss', // copy over everything except scss, which will be processed/copied with compass
-                        '!**/hbs/**' // don't copy over handlebar directory, since they are precompiled into _ui/js/templates.js
+                        '**/*.html',
                     ],
                     dest: '<%= clientTempPath %>' + '/',
-                    cwd: '<%= clientSrcPath %>' + '/'
+                    cwd: '<%= clientSrcPath %>' + '/html/'
                 }
             ]
         },
+        devassets: {
+            files: [
+                {
+                    expand: true,
+                    src: [
+                        '**/*',
+                    ],
+                    dest: '<%= clientTempPath %>' + '/_ui/',
+                    cwd: '<%= clientSrcPath %>' + '/assets/'
+                }
+            ]
+        },
+        // copy over everything except css, js, & handlebars dir which will be processed/copied with other tasks
         dist: {
             files: [
                 {
                     expand: true,
                     src: [
-                        'client/**',
-                        '!_ui/css/**', // copy over everything except css, js, & handlebars dir which will be processed/copied with other tasks
-                        '!_ui/js/**',
-                        '!_ui/hbs/**'
+                        '**/*.html'
                     ],
                     dest: '<%= clientDistPath %>' + '/',
-                    cwd: '<%= clientSrcPath %>' + '/'
+                    cwd: '<%= clientSrcPath %>' + '/html/'
+
+                },
+                {
+                    expand: true,
+                    src: [
+                        '**/*.js'
+                    ],
+                    dest: '<%= clientDistPath %>' + '/_ui/js/',
+                    cwd: '<%= clientSrcPath %>' + '/js/'
+
+                },
+                {
+                    expand: true,
+                    src: [
+                        '**/*'
+                    ],
+                    dest: '<%= clientDistPath %>' + '/_ui/',
+                    cwd: '<%= clientSrcPath %>' + '/assets/'
 
                 }
             ]
@@ -257,7 +269,7 @@ grunt.initConfig({
 
     concat: {
         dist: {
-            src: ['<%= clientSrcPath %>' + '/_ui/js/**/*.js'],
+            src: ['<%= clientSrcPath %>' + '/js/**/*.js'],
             dest: '<%= clientDistPath %>' + '/_ui/js/scripts.js'
         }
     },
@@ -272,7 +284,7 @@ grunt.initConfig({
     // replace js and css link build blocks within specified files with their concatenated versions
     replacelinks: {
         files: [
-            '<%= clientDistPath %>' + '/*.html'
+            '<%= clientDistPath %>' + '/html/*.html'
         ]
     },
 
@@ -311,8 +323,10 @@ grunt.loadNpmTasks('grunt-contrib-jasmine');
 // custom/ported tasks
 grunt.loadTasks('tasks/');
 
-// Default task.
-grunt.registerTask('run', ['jshint', 'clean:dev', 'copy:devall', 'sass:dev', 'handlebars:dev', 'shell', 'runscripts', 'connect:dev', 'watch']);
+// aliased tasks
+grunt.registerTask('copy:dev', ['copy:devhtml', 'copy:devassets', 'copy:devjs']);
+
+grunt.registerTask('run', ['jshint', 'clean:dev', 'copy:dev', 'sass:dev', 'handlebars:dev', 'shell', 'runscripts', 'connect:dev', 'watch']);
 grunt.registerTask('build', ['jshint', 'clean:dist', 'copy:dist', 'sass:dist', 'handlebars:dist','concat', 'uglify', 'replacelinks']);
 grunt.registerTask('test', ['jshint', 'jasmine:server' /*, 'jasmine:client' */]);
 
