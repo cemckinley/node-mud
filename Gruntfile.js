@@ -20,16 +20,25 @@ var folderMount = function folderMount(connect, point) {
 
 // Project configuration.
 grunt.initConfig({
-    qunit: {
-        files: [TEST_PATH + '/**/*.html']
-    },
+
     watch: {
+        sass: {
+            files: [
+                DEV_PATH + '/_ui/css/**/*.scss'
+            ],
+            tasks: ['sass:dev'],
+            options: {
+                livereload: {
+                    key: SSL_KEY_PATH,
+                    cert: SSL_CERT_PATH
+                }
+            }
+        },
         css: {
             files: [
-                DEV_PATH + '/_ui/css/**/*.scss',
                 DEV_PATH + '/_ui/css/**/*.css'
             ],
-            tasks: ['compass:dev', 'copy:devcss'],
+            tasks: ['copy:devcss'],
             options: {
                 livereload: {
                     key: SSL_KEY_PATH,
@@ -84,6 +93,7 @@ grunt.initConfig({
             }
         }
     },
+
     connect: {
         dev: {
             options: {
@@ -101,6 +111,7 @@ grunt.initConfig({
             }
         }
     },
+
     jshint: {
         options: {
             curly: true,
@@ -125,22 +136,36 @@ grunt.initConfig({
             '!' + DEV_PATH + '/_ui/js/lib/**/*' // leave out 3rd party js in lib folder, since can't guarantee lint quality
         ])
     },
-    compass: {
+
+    sass: {
         dev: {
+            files: [{
+                expand: true,
+                cwd: DEV_PATH + '/_ui/css/',
+                src: ['**/*.scss'],
+                dest: TEMP_PATH + '/_ui/css/',
+                ext: '.css'
+            }],
             options: {
-                cssDir: TEMP_PATH + '/_ui/css',
-                sassDir: DEV_PATH + '/_ui/css',
-                environment: 'development'
+                style: 'compact',
+                debug: true
             }
         },
         dist: {
+            files: [{
+                expand: true,
+                cwd: DEV_PATH + '/_ui/css/',
+                src: ['**/*.scss'],
+                dest: DIST_PATH + '/_ui/css/',
+                ext: '.css'
+            }],
             options: {
-                cssDir: DIST_PATH + '/_ui/css',
-                sassDir: DEV_PATH + '/_ui/css',
-                environment: 'production'
+                style: 'compact',
+                debug: false
             }
         }
     },
+
     handlebars: {
         dev: {
             options: {
@@ -169,9 +194,11 @@ grunt.initConfig({
             ]
         }
     },
+
     runscripts: {
         websocket: [SERVER_APP_PATH + '/app.js'] // start server app node process
     },
+
     shell: {
         startMongo: {
             command: 'mongod --dbpath ./db', // start mongodb
@@ -181,12 +208,11 @@ grunt.initConfig({
         }
     },
 
-
-    // build config
     clean: {
         dev: [TEMP_PATH],
         dist: [DIST_PATH]
     },
+
     copy: {
         devcss: {
             files: [
@@ -243,24 +269,28 @@ grunt.initConfig({
             ]
         }
     },
+
     concat: {
         dist: {
             src: [DEV_PATH + '/_ui/js/**/*.js'],
             dest: DIST_PATH + '/_ui/js/scripts.js'
         }
     },
+
     uglify: {
         dist: {
             dest: DIST_PATH + '/_ui/js/scripts.min.js',
             src: [DIST_PATH + '/_ui/js/scripts.js']
         }
     },
+
     // replace js and css link build blocks within specified files with their concatenated versions
     replacelinks: {
         files: [
             DIST_PATH + '/*.html'
         ]
     },
+
     jasmine: {
         // client: {
         //  src: 'client/src/**/*.js',
@@ -287,7 +317,7 @@ grunt.loadNpmTasks('grunt-contrib-connect');
 grunt.loadNpmTasks('grunt-contrib-jshint');
 grunt.loadNpmTasks('grunt-contrib-uglify');
 grunt.loadNpmTasks('grunt-contrib-watch');
-grunt.loadNpmTasks('grunt-contrib-compass');
+grunt.loadNpmTasks('grunt-contrib-sass');
 grunt.loadNpmTasks('grunt-contrib-clean');
 grunt.loadNpmTasks('grunt-contrib-handlebars');
 grunt.loadNpmTasks('grunt-shell-spawn');
@@ -297,8 +327,8 @@ grunt.loadNpmTasks('grunt-contrib-jasmine');
 grunt.loadTasks('tasks/');
 
 // Default task.
-grunt.registerTask('run', ['jshint', 'clean:dev', 'copy:devall', 'compass:dev', 'handlebars:dev', 'shell', 'runscripts', 'connect:dev', 'watch']);
-grunt.registerTask('build', ['jshint', 'clean:dist', 'copy:dist', 'compass:dist', 'handlebars:dist','concat', 'uglify', 'replacelinks']);
+grunt.registerTask('run', ['jshint', 'clean:dev', 'copy:devall', 'sass:dev', 'handlebars:dev', 'shell', 'runscripts', 'connect:dev', 'watch']);
+grunt.registerTask('build', ['jshint', 'clean:dist', 'copy:dist', 'sass:dist', 'handlebars:dist','concat', 'uglify', 'replacelinks']);
 grunt.registerTask('test', ['jshint', 'jasmine:server' /*, 'jasmine:client' */]);
 
 };
