@@ -68,3 +68,9 @@
 	- Help Files controller: singleton, methods for user to query help files db
 
 	- News/Announcements controller: singleton, retrieves any news/announcement records from the db, on user login or user request
+
+
+## Next Steps:
+
+- Create global db connection singleton to use with any db queries
+- Create global user collection object for storing all active client connections
