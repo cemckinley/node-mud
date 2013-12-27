@@ -11,8 +11,8 @@
 var fs = require('fs'),
 	https = require('https'),
 	socketio = require('socket.io'),
-	mongoClient = require('mongodb').MongoClient,
 	config = require('./config/env'),
+	db = require('./controllers/db'),
 	SessionHandler = require('./controllers/session-handler'),
 	globalEvents = require('./controllers/global-events');
 
@@ -27,16 +27,14 @@ var nodeMud = (function(){
 			passphrase: config.ssl.passphrase
 		},
 		httpsServer = https.createServer(httpsOptions, _httpsHandler).listen(config.socket.port), // server for socket.io socket
-		io = socketio.listen(httpsServer), // websocket
-		database; // stores db connection
+		io = socketio.listen(httpsServer); // websocket
 
 
 	/** functions **/
 
 	function init(){
 
-		// setup
-		mongoClient.connect(config.db.location, _onDatabaseConnect);
+		db.connect();
 
 		// event listeners
 		io.sockets.on('connection', _onClientConnect);
@@ -49,17 +47,11 @@ var nodeMud = (function(){
 	}
 
 	function _onClientConnect(socket){
-		var client = new SessionHandler(socket, database);
+		var client = new SessionHandler(socket);
 	}
 
 	function _onClientAuth(userData, clientSocket){
 		clientSocket.emit('message', userData.name + 'successful user auth');
-	}
-
-	function _onDatabaseConnect(err, db){
-		if(err) { return console.dir(err); }
-
-		database = db;
 	}
 
 

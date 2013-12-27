@@ -13,6 +13,7 @@ var	bcrypt = require('bcrypt'),
 	_ = require('lodash'),
 	userSchema = require('../config/new-user-schema'),
 	dict = require('../dict/user-session'),
+	db = require('./db'),
 	globalEvents = require('./global-events');
 
 
@@ -30,7 +31,7 @@ var NewUserRegistration = Class.extend({
 	 * MUD Database connection instance
 	 * @type {Object}
 	 */
-	db: null,
+	db: db,
 	/**
 	 * User data hash stored and manipulated here before returning to main app through global userAuth event
 	 * @type {Object}
@@ -56,9 +57,8 @@ var NewUserRegistration = Class.extend({
 	 * @param {Object} db       database connection instance
 	 * @param {String} userName username from initial greet during session handling
 	 */
-	init: function(socket, db, userName){
+	init: function(socket, userName){
 		this.socket = socket;
-		this.db = db;
 
 		this.userData.name = userName;
 
@@ -232,7 +232,7 @@ var NewUserRegistration = Class.extend({
 	 */
 	_registerNewUser: function(){
 		var self = this,
-			users = this.db.collection('users');
+			users = this.db.data.collection('users');
 
 		this.socket.emit('message', _.template(dict.newUserWelcome, { username: this.userData.name }));
 

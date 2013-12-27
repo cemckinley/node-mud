@@ -72,5 +72,5 @@
 
 ## Next Steps:
 
-- Create global db connection singleton to use with any db queries
+- Create base collection class
 - Create global user collection object for storing all active client connections

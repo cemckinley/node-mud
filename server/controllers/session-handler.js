@@ -18,6 +18,7 @@ module.exports = (function(){
 		passwordGen = require('password-generator'),
 		config = require('../config/env'),
 		dict = require('../dict/user-session'),
+		db = require('./db'),
 		globalEvents = require('./global-events'),
 		NewUserRegistration = require('./new-user-registration');
 
@@ -33,7 +34,7 @@ module.exports = (function(){
 		 * MongoDB connection
 		 * @type {Object}
 		 */
-		db: null, // added on init
+		db: db,
 		/**
 		 * Global events pub/sub object
 		 * @type {Object}
@@ -53,10 +54,9 @@ module.exports = (function(){
 
 		/** PUBLIC **/
 
-		init: function(socket, db){
+		init: function(socket){
 
 			this.socket = socket;
-			this.db = db;
 
 			// setup
 			this.socket.emit('message', dict.welcome);
@@ -78,14 +78,14 @@ module.exports = (function(){
 		_checkIsUserRegistered: function(data){
 			var name = data.input,
 				self = this,
-				users = this.db.collection('users'),
+				users = this.db.data.collection('users'),
 				newUser;
 
 			this.userData.name = name; // cache user name
 
 			users.findOne({name:name}, function(err, item) {
 				if (!item){
-					newUser = new NewUserRegistration(self.socket, self.db, self.userData.name);
+					newUser = new NewUserRegistration(self.socket, self.userData.name);
 				}else{
 					self.userData = item;
 					self._requestLogin();
@@ -128,7 +128,7 @@ module.exports = (function(){
 			// reset password and send email using nodemailer
 			var self = this,
 				newPassword = passwordGen(10, false),
-				users = this.db.collection('users'),
+				users = this.db.data.collection('users'),
 				hash = bcrypt.hashSync(newPassword, 10), // hash password
 				smtpTransport = nodemailer.createTransport("SMTP",{
 					host: config.resetPasswordEmail.host,

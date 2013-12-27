@@ -12,7 +12,6 @@
 module.exports = (function(){
 
 	var Class = require('class.extend'),
-		EventEmitter = require('events').EventEmitter,
 		_ = require('loadash'),
 		extend = require('extend'),
 		config = require('./config/env');
@@ -88,9 +87,6 @@ module.exports = (function(){
 		}
 
 	});
-
-	// inherit eventEmitter class to emit events for use by app.js
-	util.inherits(BaseModel, events.EventEmitter);
 
 	return BaseModel;
 
