@@ -34,6 +34,8 @@ var UserModel = BaseModel.extend({
 		defense: 7,
 		concentration: 9,
 		speed: 6,
+		maxWeight: 200,
+		currentWeight: 0,
 		inventory: [],
 		equipped: {
 			head: null,
