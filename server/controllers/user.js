@@ -8,45 +8,49 @@
  *  @license		GPL v3
  */
 
-module.exports = (function(){
+var extend = require('extend'),
+	Class = require('class.extend'),
+	_ = require('lodash'),
+	config = require('../config/env'),
+	UserModel = require('../models/user-model');
 
-	var extend = require('extend'),
-		config = require('./config/env');
+
+var User = Class.extend({
+
+	/* PUBLIC PROPERTIES */
+
+	/**
+	 * socket.io client connection instance
+	 * @type {Object}
+	 */
+	socket: null,
+	/**
+	 * client data model
+	 * @type {Object}
+	 */
+	model: null,
 
 
-	var User = function(socket, userData){
+	/* PUBLIC METHODS */
+
+	init: function(socket, userData){
+		var self = this;
 
 		this.socket = socket;
-		this.model = userData;
+		this.model = new UserModel(userData, {
+			collection: 'users',
+			success: function(){
+				self.socket.emit( 'message', 'successful model creation' );
+			},
+			error: function(){
+				self.socket.emit('message', 'error on model save');
+			}
+		});
 
-		this.init();
-	};
+		this.model.save();
+	}
 
-	User.prototype = extend({
-
-		// PROPERTIES
-
-		/**
-		 * socket.io client connection instance
-		 * @type {Object}
-		 */
-		socket: null,
-		/**
-		 * client data model
-		 * @type {Object}
-		 */
-		model: null,
+});
 
 
-		// METHODS
-
-		init: function(){
-
-		}
-
-	}, User.prototype);
-
-
-	return User;
-
-}());
+module.exports = User;

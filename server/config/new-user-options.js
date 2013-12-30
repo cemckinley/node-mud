@@ -25,18 +25,6 @@ module.exports = (function(){
 		],
 
 		/**
-		 * User properties that every user starts with on registration (i.e. health state, starting level)
-		 * @type {Object}
-		 */
-		startingAttributes: {
-			level: 1,
-			hp: 400,
-			mana: 100,
-			hunger: 100,
-			thirst: 100
-		},
-
-		/**
 		 * An object for each class available for the user to choose. Classes are what are used for combat and skills.
 		 * @type {Object}
 		 * @example
@@ -57,24 +45,24 @@ module.exports = (function(){
 		 */
 		classes: {
 			'developer': {
-				displayName: 'Developer',
+				classDisplayName: 'Developer',
 				strength: 5,
 				defense: 7,
 				concentration: 9,
 				speed: 6,
-				startingItems: [],
+				inventory: [],
 				abilities: ['hack'],
-				description: 'Developers are highly intelligent and defensive, but are somewhat slow and their tendency to spend all day in front of a screen renders them weaker than others.'
+				classDescription: 'Developers are highly intelligent and defensive, but are somewhat slow and their tendency to spend all day in front of a screen renders them weaker than others.'
 			},
 			'projectManager': {
-				displayName: 'Project Manager',
+				classDisplayName: 'Project Manager',
 				strength: 7,
 				defense: 9,
 				concentration: 4,
 				speed: 7,
-				startingItems: [],
+				inventory: [],
 				abilities: ['micromanage'],
-				description: 'Project Managers are highly defensive and have moderate strength and speed, but their concentration is limited due to frequent email and phone call interruptions.'
+				classDescription: 'Project Managers are highly defensive and have moderate strength and speed, but their concentration is limited due to frequent email and phone call interruptions.'
 			}
 		}
 

@@ -14,7 +14,8 @@ var fs = require('fs'),
 	config = require('./config/env'),
 	db = require('./controllers/db'),
 	SessionHandler = require('./controllers/session-handler'),
-	globalEvents = require('./controllers/global-events');
+	globalEvents = require('./controllers/global-events'),
+	User = require('./controllers/user');
 
 
 var nodeMud = (function(){
@@ -51,6 +52,8 @@ var nodeMud = (function(){
 	}
 
 	function _onClientAuth(userData, clientSocket){
+		var user = new User(clientSocket, userData);
+
 		clientSocket.emit('message', userData.name + 'successful user auth');
 	}
 

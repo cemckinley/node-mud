@@ -11,7 +11,7 @@ var	bcrypt = require('bcrypt'),
 	extend = require('extend'),
 	Class = require('class.extend'),
 	_ = require('lodash'),
-	userSchema = require('../config/new-user-schema'),
+	userOptions = require('../config/new-user-options'),
 	dict = require('../dict/user-session'),
 	db = require('./db'),
 	globalEvents = require('./global-events');
@@ -140,8 +140,8 @@ var NewUserRegistration = Class.extend({
 		var self = this,
 			classMsg = dict.classList + '<br />';
 
-		for (var className in userSchema.classes){
-			classMsg += '- ' + userSchema.classes[className].displayName + '<br />';
+		for (var className in userOptions.classes){
+			classMsg += '- ' + userOptions.classes[className].classDisplayName + '<br />';
 		}
 
 		this.socket.emit('message', classMsg);
@@ -158,21 +158,28 @@ var NewUserRegistration = Class.extend({
 
 		this.socket.emit('message', dict.chooseClass);
 		this.socket.once('message', function(data){
-			var command1 = data.input.substr(0, data.input.indexOf(' ')),
-				command2 = data.input.substr(data.input.indexOf(' ') + 1).toLowerCase(),
+			var command = data.input.substr(0, data.input.indexOf(' ')),
+				arg = data.input.substr(data.input.indexOf(' ') + 1).toLowerCase(),
 				className;
 
-			for( var n in userSchema.classes ){ // get real class object name if exists
-				if( userSchema.classes[n].displayName.toLowerCase() === command2 ){
+			// if first command was not 'info', use all of the input as the class name
+			if( command !== 'info' ) arg = data.input.toLowerCase();
+
+			for( var n in userOptions.classes ){ // get real class object name if exists
+				if( userOptions.classes[n].classDisplayName.toLowerCase() === arg ){
 					className = n;
 				}
 			}
 
-			if( command1 === 'info' && className){
+			// if user wanted info
+			if( command === 'info' && className ){
 				self._displayClassInfo(className);
-			}else if( className && userSchema.classes.hasOwnProperty(className) ){
+			// else if class name exists
+			}else if( className && userOptions.classes.hasOwnProperty(className) ){
+				self.userData = extend( self.userData, userOptions.classes[className] );
 				self.userData.className = className;
 				self._requestRequiredFields();
+			// else if class name doesn't exist
 			}else{
 				self.socket.emit('message', dict.invalidClass);
 				self._requestClassName();
@@ -182,38 +189,38 @@ var NewUserRegistration = Class.extend({
 
 	/**
 	 * Display description for a class
-	 * @param  {String} className [name of class (object name from userSchema.classes)]
+	 * @param  {String} className [name of class (object name from userOptions.classes)]
 	 */
 	_displayClassInfo: function(className){
 		var classObj,
 			classInfoMsg = '';
 
-		classObj = userSchema.classes[className];
-		classInfoMsg += classObj.displayName + ': ';
-		classInfoMsg += classObj.description;
+		classObj = userOptions.classes[className];
+		classInfoMsg += classObj.classDisplayName + ': ';
+		classInfoMsg += classObj.classDescription;
 
 		this.socket.emit('message', classInfoMsg);
 		this._startUserClassSelection();
 	},
 
 	/**
-	 * Request any values listed in userSchema.requiredFields, called recursively.
+	 * Request any values listed in userOptions.requiredFields, called recursively.
 	 * Once all values have been requested, finish user registration process.
 	 */
 	_requestRequiredFields: function(){
 		var self = this,
 			reqFieldsIndex = 0,
-			reqFieldsCount = userSchema.requiredFields.length;
+			reqFieldsCount = userOptions.requiredFields.length;
 
 		// send request to user for current req field
 		function sendRequest(){
-			self.socket.emit('message', userSchema.requiredFields[reqFieldsIndex].message);
+			self.socket.emit('message', userOptions.requiredFields[reqFieldsIndex].message);
 			self.socket.once('message', onDataReceived);
 		}
 
 		// add response to this.userData, request next or finish registration
 		function onDataReceived(data){
-			self.userData[userSchema.requiredFields[reqFieldsIndex].name] = data.input;
+			self.userData[userOptions.requiredFields[reqFieldsIndex].name] = data.input;
 
 			reqFieldsIndex++;
 
@@ -228,7 +235,7 @@ var NewUserRegistration = Class.extend({
 	},
 
 	/**
-	 * Add any default user attributes, hash the chosen password, and add user to database.
+	 * Hash the chosen password, and add user to database.
 	 */
 	_registerNewUser: function(){
 		var self = this,
@@ -237,13 +244,12 @@ var NewUserRegistration = Class.extend({
 		this.socket.emit('message', _.template(dict.newUserWelcome, { username: this.userData.name }));
 
 		this.userData.hash = bcrypt.hashSync(this.password, 10); // hash password
-		extend(this.userData, userSchema.startingAttributes); // add default/starting character attributes
 
 		users.save(this.userData, function(err, saved){
 			if( err || !saved ){
 				self.socket.emit('message', 'There was an error saving the new user.');
 			}else{
-				// self.socket.emit('message', JSON.stringify(saved));
+				self.socket.emit('message', JSON.stringify(saved));
 				self._authUser();
 			}
 		});

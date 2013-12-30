@@ -83,7 +83,7 @@ module.exports = (function(){
 
 			this.userData.name = name; // cache user name
 
-			users.findOne({name:name}, function(err, item) {
+			users.findOne( {name: name}, function(err, item) {
 				if (!item){
 					newUser = new NewUserRegistration(self.socket, self.userData.name);
 				}else{
@@ -112,7 +112,6 @@ module.exports = (function(){
 
 			if(match){
 				this.socket.emit('message', dict.correctPassword);
-				this.socket.emit('message', JSON.stringify(this.userData));
 				this._authUser();
 
 			}else if(message === 'reset password'){

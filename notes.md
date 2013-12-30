@@ -29,9 +29,9 @@
 
 		- Active User Instance Object: Active users are active user connections
 		- User Socket
-		- User ID/Name
 		- User Model:
 			- Name
+			- ID
 			- Title
 			- Class
 			- Description
@@ -60,6 +60,7 @@
 
 	- Item objects:
 		Item instances are created when a room with that item becomes active, or a user with that item becomes active. They exist on the user or room instance.
+		Or, is only the id/name in-memory, and other commands cause a db lookup for more data?
 
 	- Global Event Emitter (pub sub object?) for communicating things globally
 
@@ -72,5 +73,8 @@
 
 ## Next Steps:
 
-- Create base collection class
-- Create global user collection object for storing all active client connections
+- Create global user pool
+- Create global room pool
+- Determine best way to store user options/room/item/abilities data - raw JSON files, or documents in the db?
+- Create some initial user items (basic clothing, basic weapon)
+- Create some initial user abilities (default abilities, special abilities)
