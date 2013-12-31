@@ -179,7 +179,7 @@ module.exports = (function(){
 		 * @return {[type]} [description]
 		 */
 		_onUserDisconnect: function(){
-			this.globalEvents.emit('userRejected');
+			this.globalEvents.emit('clientDisconnect', this.userData, this.socket);
 		}
 
 	});

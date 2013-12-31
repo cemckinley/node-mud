@@ -38,16 +38,30 @@ var User = Class.extend({
 
 		this.socket = socket;
 		this.model = new UserModel(userData, {
-			collection: 'users',
-			success: function(){
-				self.socket.emit( 'message', 'successful model creation' );
-			},
-			error: function(){
-				self.socket.emit('message', 'error on model save');
-			}
+			collection: 'users'
 		});
 
-		this.model.save();
+		this._addEventHandlers();
+	},
+
+
+	/* PRIVATE METHODS */
+
+	_addEventHandlers: function(){
+		this.socket.on('message', this._onClientMessage.bind(this));
+		this.socket.on('disconnect', this._onClientDisconnect.bind(this));
+	},
+
+
+	/* EVENT HANDLERS */
+
+	_onClientMessage: function(data){
+		var msg = data.input;
+
+	},
+
+	_onClientDisconnect: function(data){
+		this.globalEvents.emit('clientDisconnect', this, this.socket);
 	}
 
 });

@@ -73,8 +73,8 @@
 
 ## Next Steps:
 
+- Determine how to handle and parse user commands - user/local commands versus commands for room or other users?
 - Create global user pool
 - Create global room pool
-- Determine best way to store user options/room/item/abilities data - raw JSON files, or documents in the db?
 - Create some initial user items (basic clothing, basic weapon)
 - Create some initial user abilities (default abilities, special abilities)
